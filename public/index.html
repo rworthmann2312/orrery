@@ -20,7 +20,7 @@
 
 <div class="hud" data-hud style="display:none">
   <button class="hud-btn" data-action="goto-help" title="Hilfe">?</button>
-  <button class="hud-btn" data-action="save-png" title="Als Bild speichern">⬇</button>
+  <button class="hud-btn" data-action="cancel-play" title="Abbrechen">✕</button>
 </div>
 
 <div class="hint-banner hidden" data-hint></div>
@@ -101,8 +101,19 @@
   <div class="menu-stack">
     <button class="btn" data-action="resume">Weiter</button>
     <button class="btn secondary" data-action="restart-level">Neu starten</button>
+    <button class="btn secondary" data-action="save-png">Als Bild speichern</button>
     <button class="btn secondary" data-action="goto-settings">Einstellungen</button>
     <button class="btn secondary" data-action="goto-menu">Hauptmenü</button>
+  </div>
+</div>
+
+<div class="screen hidden" data-screen="levelComplete">
+  <h2 data-level-complete-title>Geschafft!</h2>
+  <p class="subtitle" data-level-complete-sub></p>
+  <div class="menu-stack">
+    <button class="btn" data-action="next-level" data-level-complete-next>Nächste Konstellation</button>
+    <button class="btn secondary" data-action="goto-menu">Zu den Challenges</button>
+    <button class="btn secondary" data-action="goto-title">Zum Startbildschirm</button>
   </div>
 </div>
 
@@ -115,6 +126,7 @@
     <p><strong>Leertaste:</strong> Klang an/aus</p>
     <p><strong>S:</strong> aktuellen Himmel als Bild speichern</p>
     <p><strong>Esc:</strong> Pause / zurück</p>
+    <p><strong>✕ oben links:</strong> Spiel abbrechen und zum Startbildschirm</p>
     <p><strong>H:</strong> diese Hilfe</p>
   </div>
   <button class="btn secondary" data-action="resume">Zurück</button>

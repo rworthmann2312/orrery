@@ -114,6 +114,10 @@ function goTo(state) {
       ui.show("pause");
       ui.setHud(false);
       break;
+    case "levelComplete":
+      ui.show("levelComplete");
+      ui.setHud(false);
+      break;
   }
 }
 
@@ -185,7 +189,11 @@ function checkConstellationSolved() {
     saveJSON("completed-levels", Array.from(completedLevels));
     audio.success();
     tracker.recordConstellationCompleted(bodies.length === targetPoints.length);
-    ui.setHint(`${currentLevel.name} gelöst! Esc für das Menü.`);
+    const hasNext = currentLevelIndex + 1 < CONSTELLATIONS.length;
+    ui.renderLevelComplete(currentLevel, hasNext);
+    setTimeout(() => {
+      if (levelSolved) goTo("levelComplete");
+    }, 900);
   }
 }
 
@@ -300,6 +308,8 @@ window.addEventListener("keydown", (e) => {
       goTo("paused");
     } else if (appState === "paused") {
       goTo(pausedFrom);
+    } else if (appState === "levelComplete") {
+      goTo("menu");
     } else if (["settings", "achievements", "credits", "help"].includes(appState)) {
       goTo("menu");
     }
@@ -375,6 +385,19 @@ async function handleAction(action) {
     case "save-png":
       savePng();
       break;
+    case "cancel-play":
+      mode = null;
+      goTo("title");
+      break;
+    case "next-level": {
+      const nextIndex = currentLevelIndex + 1;
+      if (nextIndex < CONSTELLATIONS.length) {
+        startConstellation(CONSTELLATIONS[nextIndex], nextIndex);
+      } else {
+        goTo("menu");
+      }
+      break;
+    }
     case "reset-progress": {
       const ok = await ui.confirm("Wirklich den gesamten Fortschritt (Erfolge, gelöste Konstellationen, Einstellungen) löschen?");
       if (ok) {

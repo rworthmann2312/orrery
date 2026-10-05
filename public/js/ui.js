@@ -5,7 +5,7 @@ export class UI {
   constructor(root) {
     this.root = root;
     this.screens = {};
-    ["title", "modeSelect", "settings", "achievements", "credits", "pause", "help"].forEach((name) => {
+    ["title", "modeSelect", "settings", "achievements", "credits", "pause", "help", "levelComplete"].forEach((name) => {
       this.screens[name] = root.querySelector(`[data-screen="${name}"]`);
     });
     this.hud = root.querySelector("[data-hud]");
@@ -99,6 +99,17 @@ export class UI {
       item.innerHTML = `<div class="ach-icon">${unlocked ? "🏆" : "🔒"}</div><div class="ach-text"><h4>${a.name}</h4><p>${unlocked ? a.desc : "???"}</p></div>`;
       list.appendChild(item);
     });
+  }
+
+  renderLevelComplete(level, hasNext) {
+    const screen = this.screens.levelComplete;
+    if (!screen) return;
+    const title = screen.querySelector("[data-level-complete-title]");
+    const sub = screen.querySelector("[data-level-complete-sub]");
+    const nextBtn = screen.querySelector("[data-level-complete-next]");
+    if (title) title.textContent = `${level.name} geschafft!`;
+    if (sub) sub.textContent = hasNext ? "Bereit für die nächste Konstellation?" : "Du hast alle Konstellationen gelöst.";
+    if (nextBtn) nextBtn.classList.toggle("hidden", !hasNext);
   }
 
   renderLevelPicker(onPick, completedIds) {
