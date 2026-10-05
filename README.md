@@ -4,20 +4,30 @@ Ein Himmel, der klingt. Eine kleine generative Licht- und Klang-Installation im 
 
 Keine Biologie, kein Lernspiel – ein eigenständiges, rein spielerisches Projekt.
 
+## Modi
+
+- **Freies Spiel** – beliebig viele Körper setzen, volle gegenseitige Anziehung, der Himmel entwickelt sich frei weiter.
+- **Konstellationen** – sechs vorgegebene Formen (Dreieck, Kreuz, Diamant, Pfeil, Krone, Spirale) mit möglichst wenigen Körpern nachbilden. Fortschritt wird pro Level gespeichert.
+
 ## Bedienung
 
-- **Klick** setzt einen neuen Körper.
+- **Klick / Tippen** setzt einen neuen Körper.
 - **Ziehen** gibt ihm beim Loslassen Schwung in Zugrichtung mit.
 - **Rechtsklick** (bzw. langes Drücken auf Touch) entfernt den nächstgelegenen Körper.
-- **Leertaste** pausiert/setzt die Zeit fort.
-- **?** zeigt die Steuerung noch einmal an.
-- Die drei Icons oben rechts: Hilfe, Vollbild, Himmel als PNG speichern.
+- **Leertaste** schaltet den Klang an/aus.
+- **S** speichert den aktuellen Himmel als PNG.
+- **Esc** öffnet die Pause bzw. geht einen Schritt zurück.
+- **H** zeigt die Steuerung noch einmal an.
 
-Der zuletzt gesehene Himmel wird automatisch im Browser gemerkt (`localStorage`) und beim nächsten Besuch wiederhergestellt.
+## Erfolge & Fortschritt
+
+Zehn Erfolge (z. B. für die erste Konstellation, 250 ausgelöste Klänge oder 20 gesehene Sternschnuppen), dazu Einstellungen für Lautstärke, Sterndichte und reduzierte Bewegung. Alles liegt versioniert in `localStorage` und lässt sich über "Fortschritt zurücksetzen" in den Einstellungen komplett löschen.
 
 ## Technik
 
-Eine einzige, abhängigkeitsfreie Datei: `public/index.html` (Canvas 2D + Web Audio API, kein Build-Schritt, kein Framework). Lokal ansehen:
+Abhängigkeitsfreie Module unter `public/js/` (natives ES-Modul-System, kein Build-Schritt, kein Framework): `audio.js` (Web-Audio-Engine), `sim.js` (Physik/Konstellationen), `achievements.js`, `save.js`, `constellations.js`, `ui.js` und `main.js` als Einstiegspunkt. Styles in `public/css/style.css`.
+
+Lokal ansehen:
 
 ```bash
 cd public

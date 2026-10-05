@@ -1,737 +1,121 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<title>Orrery &mdash; ein Himmel, der klingt</title>
-<meta name="description" content="Platziere leuchtende Himmelskörper, die sich umkreisen, aneinander vorbeiziehen und dabei eine nie endende, pentatonische Ambient-Komposition spielen." />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%230a0e1d'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23f0cf8f'/%3E%3Ccircle cx='9' cy='10' r='1.3' fill='%239fd4ff'/%3E%3Ccircle cx='24' cy='22' r='1.1' fill='%23e8a07a'/%3E%3C/svg%3E" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Orrery</title>
+<meta name="description" content="Ein generatives Licht- und Klang-Spielzeug: Sterne setzen, Konstellationen lösen, dem Himmel lauschen." />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2250%22 cy=%2250%22 r=%2240%22 fill=%22%23c9a24a%22/></svg>" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
-<style>
-  :root {
-    --night-0: #05070f;
-    --night-1: #0a0e1d;
-    --night-2: #12172c;
-    --brass: #c9a46a;
-    --brass-bright: #f0cf8f;
-    --starlight: #9fd4ff;
-    --ember: #e8a07a;
-    --text: #ece6d8;
-    --text-dim: #9a93a8;
-    --glass: rgba(16, 20, 38, 0.72);
-    color-scheme: dark;
-  }
-
-  * { box-sizing: border-box; }
-
-  html, body {
-    height: 100%;
-    margin: 0;
-    background: var(--night-0);
-    color: var(--text);
-    font-family: "Inter", system-ui, -apple-system, sans-serif;
-    overflow: hidden;
-    overscroll-behavior: none;
-  }
-
-  body { position: relative; }
-
-  canvas#sky {
-    position: fixed;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    display: block;
-    touch-action: none;
-    cursor: crosshair;
-    background:
-      radial-gradient(ellipse 120% 90% at 50% 15%, var(--night-2), transparent 60%),
-      var(--night-0);
-  }
-
-  .label {
-    position: fixed;
-    left: max(18px, env(safe-area-inset-left, 0px));
-    top: calc(env(safe-area-inset-top, 0px) + 18px);
-    pointer-events: none;
-    transition: opacity 1.2s ease;
-    max-width: calc(100vw - 36px);
-  }
-
-  .label h1 {
-    margin: 0 0 2px;
-    font-family: "Cormorant Garamond", "Iowan Old Style", serif;
-    font-weight: 600;
-    font-style: italic;
-    font-size: clamp(22px, 4vw, 30px);
-    color: var(--brass-bright);
-    letter-spacing: 0.02em;
-    text-wrap: balance;
-    text-shadow: 0 0 18px rgba(201, 164, 106, 0.35);
-  }
-
-  .label p {
-    margin: 0;
-    font-size: 12px;
-    letter-spacing: 0.04em;
-    color: var(--text-dim);
-  }
-
-  .corner {
-    position: fixed;
-    right: max(18px, env(safe-area-inset-right, 0px));
-    top: calc(env(safe-area-inset-top, 0px) + 18px);
-    display: flex;
-    gap: 6px;
-  }
-
-  .icon-btn {
-    appearance: none;
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
-    border: 1px solid rgba(201, 164, 106, 0.3);
-    background: var(--glass);
-    color: var(--text);
-    display: grid;
-    place-items: center;
-    cursor: pointer;
-    backdrop-filter: blur(8px);
-  }
-  .icon-btn:hover { border-color: var(--brass-bright); color: var(--brass-bright); }
-  .icon-btn:focus-visible { outline: 2px solid var(--brass-bright); outline-offset: 1px; }
-  .icon-btn svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; }
-
-  .plate {
-    position: fixed;
-    left: 50%;
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 2px;
-    padding: 6px;
-    border-radius: 14px;
-    background: var(--glass);
-    border: 1px solid rgba(201, 164, 106, 0.35);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05);
-    backdrop-filter: blur(10px);
-    max-width: calc(100vw - 24px);
-  }
-
-  .plate-btn {
-    appearance: none;
-    border: 1px solid transparent;
-    background: transparent;
-    color: var(--text);
-    font: inherit;
-    font-size: 13px;
-    padding: 9px 13px;
-    border-radius: 9px;
-    cursor: pointer;
-    white-space: nowrap;
-  }
-  .plate-btn:hover { background: rgba(201, 164, 106, 0.14); }
-  .plate-btn:focus-visible { outline: 2px solid var(--brass-bright); outline-offset: 1px; }
-  .plate-btn[aria-pressed="true"] { background: rgba(201, 164, 106, 0.22); color: var(--brass-bright); }
-
-  .plate-div { width: 1px; align-self: stretch; margin: 4px 2px; background: rgba(201, 164, 106, 0.25); }
-
-  .readout { display: flex; flex-direction: column; gap: 1px; padding: 6px 14px 6px 10px; min-width: 88px; }
-  .readout .k { font-size: 9px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
-  .readout .v { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--starlight); }
-
-  .help-veil {
-    position: fixed; inset: 0; background: rgba(5,7,15,0.78);
-    display: flex; align-items: center; justify-content: center;
-    padding: 24px; backdrop-filter: blur(4px); z-index: 10;
-  }
-  .help-card {
-    max-width: 420px; width: 100%;
-    background: var(--night-1); border: 1px solid rgba(201,164,106,0.35);
-    border-radius: 16px; padding: 26px 28px;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.6);
-  }
-  .help-card h2 {
-    margin: 0 0 14px; font-family: "Cormorant Garamond", serif; font-style: italic;
-    font-weight: 600; color: var(--brass-bright); font-size: 26px;
-  }
-  .help-card dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 10px 16px; }
-  .help-card dt {
-    font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--night-0);
-    background: var(--brass); padding: 3px 8px; border-radius: 6px; white-space: nowrap; height: fit-content;
-  }
-  .help-card dd { margin: 0; font-size: 14px; color: var(--text); line-height: 1.5; }
-  .help-close {
-    margin-top: 20px; width: 100%; padding: 10px; border-radius: 9px;
-    border: 1px solid var(--brass); background: transparent; color: var(--brass-bright);
-    font: inherit; font-size: 13px; cursor: pointer;
-  }
-  .help-close:hover { background: rgba(201,164,106,0.14); }
-
-  .toast {
-    position: fixed; left: 50%; top: calc(env(safe-area-inset-top, 0px) + 18px);
-    transform: translate(-50%, -140%); pointer-events: none;
-    background: var(--glass); border: 1px solid rgba(201,164,106,0.35);
-    border-radius: 10px; padding: 8px 16px; font-size: 13px; color: var(--brass-bright);
-    backdrop-filter: blur(8px); transition: transform 0.4s ease;
-  }
-  .toast.show { transform: translate(-50%, 0); }
-
-  [hidden] { display: none !important; }
-
-  @media (prefers-reduced-motion: reduce) {
-    .label, .toast { transition: none; }
-  }
-
-  @media (max-width: 480px) {
-    .plate { gap: 0; padding: 4px; }
-    .plate-btn { padding: 8px 9px; font-size: 12px; }
-    .readout { padding: 4px 8px; min-width: 70px; }
-    .label p { display: none; }
-  }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@1,500;1,600&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
+<canvas id="sky"></canvas>
 
-<canvas id="sky" aria-label="Orrery: klicke oder tippe, um einen Körper in den Nachthimmel zu setzen" role="img"></canvas>
+<div class="hud" data-hud style="display:none">
+  <button class="hud-btn" data-action="goto-help" title="Hilfe">?</button>
+  <button class="hud-btn" data-action="save-png" title="Als Bild speichern">⬇</button>
+</div>
 
-<div class="label" id="label">
+<div class="hint-banner hidden" data-hint></div>
+<div class="toast-stack" data-toasts></div>
+<div class="confirm-overlay hidden" data-confirm></div>
+
+<div class="screen" data-screen="title">
   <h1>Orrery</h1>
-  <p>Klicken setzt einen Körper &middot; Ziehen gibt ihm Schwung &middot; Rechtsklick entfernt einen</p>
-</div>
-
-<div class="corner">
-  <button type="button" class="icon-btn" id="btn-help" aria-label="Steuerung anzeigen" title="Steuerung (?)">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 0c0 1.8-2.5 2-2.5 4"/><circle cx="12" cy="17" r="0.3" fill="currentColor"/></svg>
-  </button>
-  <button type="button" class="icon-btn" id="btn-fullscreen" aria-label="Vollbild umschalten" title="Vollbild">
-    <svg viewBox="0 0 24 24"><path d="M8 4H4v4M16 4h4v4M8 20H4v-4M16 20h4v-4"/></svg>
-  </button>
-  <button type="button" class="icon-btn" id="btn-save" aria-label="Himmel als Bild speichern" title="Als Bild speichern">
-    <svg viewBox="0 0 24 24"><path d="M12 4v11m0 0 4-4m-4 4-4-4M5 20h14"/></svg>
-  </button>
-</div>
-
-<div class="plate" role="toolbar" aria-label="Orrery-Bedienung">
-  <button type="button" class="plate-btn" id="btn-sound" aria-pressed="false">Klang: aus</button>
-  <div class="plate-div"></div>
-  <button type="button" class="plate-btn" id="btn-clear">Himmel leeren</button>
-  <div class="plate-div"></div>
-  <div class="readout"><span class="k">Körper</span><span class="v" id="read-count">0</span></div>
-  <div class="readout"><span class="k">Letzter Ton</span><span class="v" id="read-note">&mdash;</span></div>
-</div>
-
-<div class="help-veil" id="help" hidden>
-  <div class="help-card">
-    <h2>Steuerung</h2>
-    <dl>
-      <dt>Klick</dt><dd>Setzt einen neuen Körper an diese Stelle.</dd>
-      <dt>Ziehen</dt><dd>Setzt ihn los mit Schwung in Zugrichtung.</dd>
-      <dt>Rechtsklick</dt><dd>Entfernt den nächstgelegenen Körper.</dd>
-      <dt>Lang drücken</dt><dd>Entfernt den nächstgelegenen Körper (Touch).</dd>
-      <dt>?</dt><dd>Diese Übersicht ein-/ausblenden.</dd>
-      <dt>Leertaste</dt><dd>Hält die Zeit an oder lässt sie weiterlaufen.</dd>
-    </dl>
-    <button type="button" class="help-close" id="help-close">Verstanden</button>
+  <p class="subtitle">Ein stiller Himmel, der auf dich wartet. Setze Lichter, höre ihnen zu.</p>
+  <div class="menu-stack">
+    <button class="btn" data-action="goto-menu">Spielen</button>
+    <button class="btn secondary" data-action="goto-settings">Einstellungen</button>
+    <button class="btn secondary" data-action="goto-achievements">Erfolge</button>
+    <button class="btn secondary" data-action="goto-credits">Über Orrery</button>
   </div>
 </div>
 
-<div class="toast" id="toast"></div>
+<div class="screen hidden" data-screen="modeSelect">
+  <h2>Wähle deinen Himmel</h2>
+  <div class="mode-grid">
+    <div class="mode-card" data-action="start-free">
+      <h3>Freies Spiel</h3>
+      <p>Setze beliebig viele Körper, lass sie sich gegenseitig anziehen und lausche dem Klang.</p>
+    </div>
+    <div class="mode-card">
+      <h3>Konstellationen</h3>
+      <p>Finde mit möglichst wenigen Körpern die vorgegebene Form.</p>
+      <div class="progress" data-constellation-progress>0 / 0 gelöst</div>
+      <div class="menu-stack" data-level-grid style="margin-top:0.6rem"></div>
+    </div>
+  </div>
+  <button class="btn secondary" data-action="goto-title">Zurück</button>
+</div>
 
-<script>
-(function () {
-  "use strict";
+<div class="screen hidden" data-screen="settings">
+  <h2>Einstellungen</h2>
+  <div class="settings-panel">
+    <div class="setting-row">
+      <label>Lautstärke</label>
+      <input type="range" min="0" max="100" data-set-volume />
+    </div>
+    <div class="row-inline">
+      <label>Klang an</label>
+      <input type="checkbox" data-set-sound />
+    </div>
+    <div class="setting-row">
+      <label>Sterndichte</label>
+      <input type="range" min="20" max="200" data-set-density />
+    </div>
+    <div class="row-inline">
+      <label>Reduzierte Bewegung</label>
+      <input type="checkbox" data-set-reduced />
+    </div>
+    <button class="btn danger small" data-action="reset-progress">Fortschritt zurücksetzen</button>
+  </div>
+  <button class="btn secondary" data-action="goto-title">Zurück</button>
+</div>
 
-  var canvas = document.getElementById("sky");
-  var ctx = canvas.getContext("2d", { alpha: false });
-  var label = document.getElementById("label");
-  var btnSound = document.getElementById("btn-sound");
-  var btnClear = document.getElementById("btn-clear");
-  var btnHelp = document.getElementById("btn-help");
-  var btnFullscreen = document.getElementById("btn-fullscreen");
-  var btnSave = document.getElementById("btn-save");
-  var help = document.getElementById("help");
-  var helpClose = document.getElementById("help-close");
-  var toastEl = document.getElementById("toast");
-  var readCount = document.getElementById("read-count");
-  var readNote = document.getElementById("read-note");
+<div class="screen hidden" data-screen="achievements">
+  <h2>Erfolge</h2>
+  <div class="achievements-panel">
+    <div class="ach-list" data-ach-list></div>
+  </div>
+  <button class="btn secondary" data-action="goto-title">Zurück</button>
+</div>
 
-  var reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  var paused = false;
+<div class="screen hidden" data-screen="credits">
+  <h2>Über Orrery</h2>
+  <div class="credits-text">
+    <p><strong>Orrery</strong> ist ein generatives Licht- und Klang-Spielzeug. Setze leuchtende Körper in den Nachthimmel, lass sie sich anziehen, hör ihnen beim Klingen zu, oder forme aus ihnen Sternbilder.</p>
+    <p>Gebaut mit nichts als HTML, CSS und JavaScript &mdash; keine Engine, kein Build-Schritt. Musik und Klang entstehen live über die Web Audio API.</p>
+  </div>
+  <button class="btn secondary" data-action="goto-title">Zurück</button>
+</div>
 
-  var W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
-  function resize() {
-    W = window.innerWidth; H = window.innerHeight;
-    canvas.width = Math.round(W * DPR);
-    canvas.height = Math.round(H * DPR);
-    canvas.style.width = W + "px";
-    canvas.style.height = H + "px";
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-  }
-  window.addEventListener("resize", resize);
+<div class="screen hidden" data-screen="pause">
+  <h2>Pause</h2>
+  <div class="menu-stack">
+    <button class="btn" data-action="resume">Weiter</button>
+    <button class="btn secondary" data-action="restart-level">Neu starten</button>
+    <button class="btn secondary" data-action="goto-settings">Einstellungen</button>
+    <button class="btn secondary" data-action="goto-menu">Hauptmenü</button>
+  </div>
+</div>
 
-  function showToast(msg) {
-    toastEl.textContent = msg;
-    toastEl.classList.add("show");
-    clearTimeout(showToast._t);
-    showToast._t = setTimeout(function () { toastEl.classList.remove("show"); }, 1800);
-  }
+<div class="screen hidden" data-screen="help">
+  <h2>Steuerung</h2>
+  <div class="help-list">
+    <p><strong>Klick / Tippen:</strong> Körper setzen</p>
+    <p><strong>Ziehen:</strong> Körper mit Schwung setzen</p>
+    <p><strong>Rechtsklick / Halten:</strong> nächsten Körper entfernen</p>
+    <p><strong>Leertaste:</strong> Klang an/aus</p>
+    <p><strong>S:</strong> aktuellen Himmel als Bild speichern</p>
+    <p><strong>Esc:</strong> Pause / zurück</p>
+    <p><strong>H:</strong> diese Hilfe</p>
+  </div>
+  <button class="btn secondary" data-action="goto-menu">Zurück</button>
+</div>
 
-  // ---------- background field ----------
-  var field = [];
-  function seedField() {
-    field = [];
-    var n = Math.round((W * H) / 9000);
-    for (var i = 0; i < n; i++) {
-      field.push({ x: Math.random() * W, y: Math.random() * H, r: Math.random() * 1.1 + 0.3, phase: Math.random() * Math.PI * 2, speed: 0.4 + Math.random() * 0.8 });
-    }
-  }
-
-  var shootingStars = [];
-  function maybeSpawnShootingStar() {
-    if (Math.random() < 0.004 && shootingStars.length < 2) {
-      var fromLeft = Math.random() < 0.5;
-      var y0 = Math.random() * H * 0.5;
-      shootingStars.push({
-        x: fromLeft ? -20 : W + 20, y: y0,
-        vx: (fromLeft ? 1 : -1) * (520 + Math.random() * 260),
-        vy: 120 + Math.random() * 80,
-        life: 1
-      });
-    }
-  }
-
-  // ---------- musical scale (A minor pentatonic, 3 octaves) ----------
-  var SCALE = [57, 60, 62, 64, 67, 69, 72, 74, 76, 79, 81, 84, 86, 88, 91, 93];
-  function midiToFreq(m) { return 440 * Math.pow(2, (m - 69) / 12); }
-  function noteName(m) {
-    var names = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
-    return names[((m % 12) + 12) % 12] + (Math.floor(m / 12) - 1);
-  }
-  function yToMidi(y) {
-    var t = 1 - Math.max(0, Math.min(1, y / H));
-    return SCALE[Math.round(t * (SCALE.length - 1))];
-  }
-
-  // ---------- voices per body family ----------
-  var VOICES = [
-    { hue: 42,  type: "triangle", filterMul: 7, detune: 0 },
-    { hue: 196, type: "sine",     filterMul: 10, detune: 0 },
-    { hue: 266, type: "sawtooth", filterMul: 3.2, detune: -6 },
-    { hue: 18,  type: "triangle", filterMul: 5, detune: 8 }
-  ];
-
-  // ---------- audio ----------
-  var audioCtx = null, masterGain = null, dryGain = null, wetGain = null, soundOn = false;
-  var drone = null;
-
-  function buildReverb() {
-    // Leichtes, selbstgebautes Feedback-Delay-Netz statt Convolution-Reverb:
-    // drei Delays mit leicht unterschiedlicher Zeit sorgen fuer Diffusion.
-    var input = audioCtx.createGain();
-    var output = audioCtx.createGain();
-    output.gain.value = 0.55;
-    var times = [0.29, 0.37, 0.43];
-    times.forEach(function (t) {
-      var delay = audioCtx.createDelay(1.2);
-      delay.delayTime.value = t;
-      var fb = audioCtx.createGain();
-      fb.gain.value = 0.34;
-      var lp = audioCtx.createBiquadFilter();
-      lp.type = "lowpass";
-      lp.frequency.value = 2600;
-      input.connect(delay);
-      delay.connect(lp);
-      lp.connect(fb);
-      fb.connect(delay);
-      lp.connect(output);
-    });
-    return { input: input, output: output };
-  }
-
-  function ensureAudio() {
-    if (audioCtx) return;
-    try {
-      var AC = window.AudioContext || window.webkitAudioContext;
-      audioCtx = new AC();
-      masterGain = audioCtx.createGain();
-      masterGain.gain.value = 0.0001;
-      masterGain.connect(audioCtx.destination);
-
-      dryGain = audioCtx.createGain();
-      dryGain.gain.value = 0.8;
-      dryGain.connect(masterGain);
-
-      var verb = buildReverb();
-      wetGain = verb.input;
-      verb.output.connect(masterGain);
-    } catch (e) { audioCtx = null; }
-  }
-
-  function startDrone() {
-    if (!audioCtx || drone) return;
-    var root = 45; // A2
-    var fifth = 52; // E3
-    var voices = [root, fifth].map(function (midi, i) {
-      var osc = audioCtx.createOscillator();
-      var g = audioCtx.createGain();
-      osc.type = "sine";
-      osc.frequency.value = midiToFreq(midi);
-      osc.detune.value = i === 1 ? 4 : -4;
-      g.gain.value = 0.0001;
-      osc.connect(g);
-      g.connect(dryGain);
-      g.connect(wetGain);
-      osc.start();
-      g.gain.setTargetAtTime(i === 0 ? 0.05 : 0.03, audioCtx.currentTime, 3);
-      return { osc: osc, gain: g };
-    });
-    drone = voices;
-  }
-  function stopDrone() {
-    if (!drone) return;
-    drone.forEach(function (v) {
-      v.gain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 1.2);
-      v.osc.stop(audioCtx.currentTime + 3);
-    });
-    drone = null;
-  }
-
-  function setSound(on) {
-    soundOn = on;
-    btnSound.textContent = "Klang: " + (on ? "an" : "aus");
-    btnSound.setAttribute("aria-pressed", on ? "true" : "false");
-    if (on) {
-      ensureAudio();
-      if (audioCtx && audioCtx.state === "suspended") audioCtx.resume();
-      if (masterGain) masterGain.gain.setTargetAtTime(0.5, audioCtx.currentTime, 0.4);
-      startDrone();
-    } else if (masterGain && audioCtx) {
-      masterGain.gain.setTargetAtTime(0.0001, audioCtx.currentTime, 0.2);
-      stopDrone();
-    }
-  }
-
-  function pluck(midi, velocity, voiceIdx) {
-    readNote.textContent = noteName(midi);
-    if (!soundOn || !audioCtx) return;
-    var voice = VOICES[voiceIdx % VOICES.length];
-    var t0 = audioCtx.currentTime;
-    var freq = midiToFreq(midi);
-    var osc = audioCtx.createOscillator();
-    var gain = audioCtx.createGain();
-    var filt = audioCtx.createBiquadFilter();
-    osc.type = voice.type;
-    osc.frequency.value = freq;
-    osc.detune.value = voice.detune;
-    filt.type = "lowpass";
-    filt.frequency.value = freq * voice.filterMul;
-    filt.Q.value = 0.4;
-    var peak = Math.max(0.05, Math.min(0.5, velocity)) * 0.55;
-    gain.gain.setValueAtTime(0.0001, t0);
-    gain.gain.exponentialRampToValueAtTime(peak, t0 + 0.012);
-    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 1.6);
-    osc.connect(filt);
-    filt.connect(gain);
-    gain.connect(dryGain);
-    gain.connect(wetGain);
-    osc.start(t0);
-    osc.stop(t0 + 1.7);
-  }
-
-  // ---------- bodies ----------
-  var bodies = [];
-  var nextId = 1;
-  var MAX_BODIES = 36;
-  var LINK_DIST = 170;
-
-  function addBody(x, y, vx, vy) {
-    if (bodies.length >= MAX_BODIES) bodies.shift();
-    var voiceIdx = bodies.length % VOICES.length;
-    var b = {
-      id: nextId++, x: x, y: y,
-      vx: vx || (Math.random() - 0.5) * 6,
-      vy: vy || (Math.random() - 0.5) * 6,
-      mass: 1.4 + Math.random() * 1.6,
-      hue: VOICES[voiceIdx].hue, voiceIdx: voiceIdx,
-      trail: [], bornAt: performance.now()
-    };
-    bodies.push(b);
-    readCount.textContent = String(bodies.length);
-    pluck(yToMidi(y), 0.35, voiceIdx);
-    return b;
-  }
-
-  function removeNearest(x, y) {
-    if (!bodies.length) return;
-    var best = -1, bestDist = Infinity;
-    for (var i = 0; i < bodies.length; i++) {
-      var d = Math.hypot(bodies[i].x - x, bodies[i].y - y);
-      if (d < bestDist) { bestDist = d; best = i; }
-    }
-    if (best >= 0 && bestDist < 60) {
-      bodies.splice(best, 1);
-      readCount.textContent = String(bodies.length);
-      showToast("Körper entfernt");
-    }
-  }
-
-  function seedSky() {
-    bodies = [];
-    var cx = W / 2, cy = H * 0.42;
-    var seeds = [{ dx: -W * 0.22, dy: -H * 0.08 }, { dx: W * 0.08, dy: H * 0.1 }, { dx: W * 0.2, dy: -H * 0.14 }];
-    seeds.forEach(function (s) { addBody(cx + s.dx, cy + s.dy, (Math.random() - 0.5) * 3, (Math.random() - 0.5) * 3); });
-    readNote.textContent = "—";
-  }
-
-  function step(dt) {
-    var n = bodies.length;
-    for (var i = 0; i < n; i++) {
-      var a = bodies[i];
-      for (var j = i + 1; j < n; j++) {
-        var c = bodies[j];
-        var dx = c.x - a.x, dy = c.y - a.y;
-        var distSq = dx * dx + dy * dy;
-        var dist = Math.sqrt(distSq) || 0.001;
-        var minDist = 46;
-        if (dist > minDist) {
-          var f = (a.mass * c.mass) / Math.max(distSq, 900) * 46;
-          var fx = (dx / dist) * f, fy = (dy / dist) * f;
-          a.vx += fx * dt; a.vy += fy * dt;
-          c.vx -= fx * dt; c.vy -= fy * dt;
-        } else {
-          var push = (minDist - dist) * 1.4;
-          var nx = dx / dist, ny = dy / dist;
-          a.vx -= nx * push * dt; a.vy -= ny * push * dt;
-          c.vx += nx * push * dt; c.vy += ny * push * dt;
-          var key = Math.min(a.id, c.id) + ":" + Math.max(a.id, c.id);
-          var now = performance.now();
-          a._chimed = a._chimed || {};
-          if (!a._chimed[key] || now - a._chimed[key] > 420) {
-            a._chimed[key] = now;
-            pluck(yToMidi((a.y + c.y) / 2), 0.3, a.voiceIdx);
-          }
-        }
-      }
-    }
-    var damp = reducedMotion ? 0.9 : 0.985;
-    for (i = 0; i < n; i++) {
-      var p = bodies[i];
-      p.vx *= damp; p.vy *= damp;
-      var speed = Math.hypot(p.vx, p.vy), maxSpeed = 90;
-      if (speed > maxSpeed) { p.vx = (p.vx / speed) * maxSpeed; p.vy = (p.vy / speed) * maxSpeed; }
-      p.x += p.vx * dt; p.y += p.vy * dt;
-      var margin = 24;
-      if (p.x < margin) { p.x = margin; p.vx = Math.abs(p.vx) * 0.6; }
-      if (p.x > W - margin) { p.x = W - margin; p.vx = -Math.abs(p.vx) * 0.6; }
-      if (p.y < margin) { p.y = margin; p.vy = Math.abs(p.vy) * 0.6; }
-      if (p.y > H - margin) { p.y = H - margin; p.vy = -Math.abs(p.vy) * 0.6; }
-      p.trail.push({ x: p.x, y: p.y });
-      if (p.trail.length > 26) p.trail.shift();
-    }
-    for (i = shootingStars.length - 1; i >= 0; i--) {
-      var s = shootingStars[i];
-      s.x += s.vx * dt; s.y += s.vy * dt; s.life -= dt * 0.6;
-      if (s.life <= 0 || s.x < -40 || s.x > W + 40) shootingStars.splice(i, 1);
-    }
-    maybeSpawnShootingStar();
-  }
-
-  function draw() {
-    ctx.fillStyle = "rgba(5,7,15,0.22)";
-    ctx.fillRect(0, 0, W, H);
-
-    var t = performance.now() / 1000;
-    for (var i = 0; i < field.length; i++) {
-      var s = field[i];
-      var tw = 0.5 + 0.5 * Math.sin(t * s.speed + s.phase);
-      ctx.globalAlpha = 0.15 + tw * 0.5;
-      ctx.fillStyle = "#cfe3ff";
-      ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fill();
-    }
-    ctx.globalAlpha = 1;
-
-    for (i = 0; i < shootingStars.length; i++) {
-      var sh = shootingStars[i];
-      var tailX = sh.x - sh.vx * 0.05, tailY = sh.y - sh.vy * 0.05;
-      var grad = ctx.createLinearGradient(tailX, tailY, sh.x, sh.y);
-      grad.addColorStop(0, "rgba(207,227,255,0)");
-      grad.addColorStop(1, "rgba(207,227,255," + Math.max(0, sh.life).toFixed(2) + ")");
-      ctx.strokeStyle = grad;
-      ctx.lineWidth = 1.6;
-      ctx.beginPath(); ctx.moveTo(tailX, tailY); ctx.lineTo(sh.x, sh.y); ctx.stroke();
-    }
-
-    var n = bodies.length;
-    ctx.lineWidth = 1;
-    for (i = 0; i < n; i++) {
-      for (var j = i + 1; j < n; j++) {
-        var a = bodies[i], c = bodies[j];
-        var dist = Math.hypot(c.x - a.x, c.y - a.y);
-        if (dist < LINK_DIST) {
-          var alpha = (1 - dist / LINK_DIST) * 0.55;
-          ctx.strokeStyle = "rgba(201,164,106," + alpha.toFixed(3) + ")";
-          ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(c.x, c.y); ctx.stroke();
-        }
-      }
-    }
-
-    for (i = 0; i < n; i++) {
-      var b = bodies[i];
-      for (var k = 0; k < b.trail.length; k++) {
-        var pt = b.trail[k];
-        var a2 = (k / b.trail.length) * 0.35;
-        ctx.fillStyle = "hsla(" + b.hue + ",80%,72%," + a2.toFixed(3) + ")";
-        ctx.beginPath(); ctx.arc(pt.x, pt.y, 1.4, 0, Math.PI * 2); ctx.fill();
-      }
-      var age = Math.min(1, (performance.now() - b.bornAt) / 400);
-      var r = 16 * age;
-      var glow = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, r || 0.01);
-      glow.addColorStop(0, "hsla(" + b.hue + ",90%,80%,0.9)");
-      glow.addColorStop(1, "hsla(" + b.hue + ",90%,60%,0)");
-      ctx.fillStyle = glow;
-      ctx.beginPath(); ctx.arc(b.x, b.y, r, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = "hsla(" + b.hue + ",85%,88%,1)";
-      ctx.beginPath(); ctx.arc(b.x, b.y, 3.4 * age, 0, Math.PI * 2); ctx.fill();
-    }
-  }
-
-  var last = performance.now();
-  function frame(now) {
-    var dt = Math.min(0.05, (now - last) / 1000);
-    last = now;
-    if (!paused) step(dt * (reducedMotion ? 0.5 : 1));
-    draw();
-    requestAnimationFrame(frame);
-  }
-
-  // ---------- input ----------
-  var dragStart = null, longPressTimer = null;
-  function pos(evt) {
-    var t = (evt.touches && evt.touches[0]) || (evt.changedTouches && evt.changedTouches[0]) || evt;
-    var r = canvas.getBoundingClientRect();
-    return { x: t.clientX - r.left, y: t.clientY - r.top };
-  }
-  function onDown(evt) {
-    evt.preventDefault();
-    if (!soundOn) setSound(true);
-    label.style.opacity = "0";
-    var p = pos(evt);
-    dragStart = p;
-    if (evt.touches) {
-      longPressTimer = setTimeout(function () { removeNearest(p.x, p.y); dragStart = null; }, 550);
-    }
-  }
-  function onMove(evt) {
-    if (longPressTimer && evt.touches) {
-      var p = pos(evt);
-      if (dragStart && Math.hypot(p.x - dragStart.x, p.y - dragStart.y) > 10) {
-        clearTimeout(longPressTimer); longPressTimer = null;
-      }
-    }
-  }
-  function onUp(evt) {
-    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
-    if (!dragStart) return;
-    var p = pos(evt);
-    var vx = (p.x - dragStart.x) * 0.25, vy = (p.y - dragStart.y) * 0.25;
-    addBody(dragStart.x, dragStart.y, vx, vy);
-    dragStart = null;
-  }
-  function onContext(evt) {
-    evt.preventDefault();
-    var p = pos(evt);
-    removeNearest(p.x, p.y);
-  }
-  canvas.addEventListener("mousedown", onDown);
-  canvas.addEventListener("mouseup", onUp);
-  canvas.addEventListener("contextmenu", onContext);
-  canvas.addEventListener("touchstart", onDown, { passive: false });
-  canvas.addEventListener("touchmove", onMove, { passive: true });
-  canvas.addEventListener("touchend", onUp, { passive: false });
-
-  btnSound.addEventListener("click", function () { setSound(!soundOn); });
-  btnClear.addEventListener("click", seedSky);
-
-  function toggleHelp(show) {
-    help.hidden = show === false ? true : !help.hidden ? true : false;
-    if (show === true) help.hidden = false;
-    if (show === false) help.hidden = true;
-  }
-  btnHelp.addEventListener("click", function () { help.hidden = !help.hidden; });
-  helpClose.addEventListener("click", function () { help.hidden = true; });
-  help.addEventListener("click", function (e) { if (e.target === help) help.hidden = true; });
-
-  btnFullscreen.addEventListener("click", function () {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen && document.documentElement.requestFullscreen().catch(function () {});
-    } else {
-      document.exitFullscreen && document.exitFullscreen();
-    }
-  });
-
-  btnSave.addEventListener("click", function () {
-    try {
-      var link = document.createElement("a");
-      link.download = "orrery-" + Date.now() + ".png";
-      link.href = canvas.toDataURL("image/png");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showToast("Bild gespeichert");
-    } catch (e) {
-      showToast("Speichern hat nicht geklappt");
-    }
-  });
-
-  window.addEventListener("keydown", function (e) {
-    if (e.key === "?") { help.hidden = !help.hidden; }
-    if (e.key === "Escape") { help.hidden = true; }
-    if (e.code === "Space") { e.preventDefault(); paused = !paused; showToast(paused ? "Pausiert" : "Weiter"); }
-  });
-
-  // ---------- persistence (dieser Browser merkt sich den letzten Himmel) ----------
-  var STORAGE_KEY = "orrery-sky-v1";
-  function saveLocal() {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify({
-        bodies: bodies.map(function (b) { return { x: b.x, y: b.y, vx: b.vx, vy: b.vy, voiceIdx: b.voiceIdx, mass: b.mass }; }),
-        soundOn: soundOn
-      }));
-    } catch (e) {}
-  }
-  function loadLocal() {
-    try {
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return null;
-      return JSON.parse(raw);
-    } catch (e) { return null; }
-  }
-  setInterval(saveLocal, 4000);
-  window.addEventListener("pagehide", saveLocal);
-
-  function init() {
-    resize();
-    seedField();
-    var saved = loadLocal();
-    if (saved && saved.bodies && saved.bodies.length) {
-      bodies = saved.bodies.map(function (d) {
-        return { id: nextId++, x: d.x, y: d.y, vx: d.vx, vy: d.vy, mass: d.mass, voiceIdx: d.voiceIdx || 0, hue: VOICES[d.voiceIdx || 0].hue, trail: [], bornAt: performance.now() - 1000 };
-      });
-      readCount.textContent = String(bodies.length);
-    } else {
-      seedSky();
-    }
-    requestAnimationFrame(function (t) { last = t; requestAnimationFrame(frame); });
-  }
-
-  init();
-})();
-</script>
+<script type="module" src="js/main.js"></script>
 </body>
 </html>
