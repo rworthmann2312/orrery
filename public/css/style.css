@@ -23,6 +23,15 @@ html, body {
   color: var(--text);
   font-family: "Inter", system-ui, sans-serif;
   overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input, textarea {
+  -webkit-user-select: auto;
+  user-select: auto;
 }
 
 h1, h2, .display {
@@ -50,7 +59,7 @@ h1, h2, .display {
   align-items: center;
   justify-content: center;
   gap: 1.1rem;
-  padding: 2rem 1.2rem;
+  padding: calc(2rem + env(safe-area-inset-top, 0px)) calc(1.2rem + env(safe-area-inset-right, 0px)) calc(2rem + env(safe-area-inset-bottom, 0px)) calc(1.2rem + env(safe-area-inset-left, 0px));
   overflow-y: auto;
   text-align: center;
   background: radial-gradient(ellipse at 50% 30%, var(--night-2), var(--night-0) 70%);
@@ -73,12 +82,14 @@ h1, h2, .display {
   cursor: pointer;
   transition: background 0.15s, transform 0.1s, border-color 0.15s;
   min-width: 220px;
+  min-height: 44px;
+  touch-action: manipulation;
 }
 .btn:hover { background: rgba(201, 162, 74, 0.18); border-color: var(--brass-bright); }
 .btn:active { transform: scale(0.97); }
 .btn.secondary { border-color: var(--text-dim); opacity: 0.85; }
 .btn.danger { border-color: var(--ember); color: var(--ember); }
-.btn.small { min-width: auto; padding: 0.45rem 1rem; font-size: 0.85rem; }
+.btn.small { min-width: auto; padding: 0.45rem 1rem; font-size: 0.85rem; min-height: 38px; }
 
 .menu-stack { display: flex; flex-direction: column; gap: 0.7rem; align-items: center; }
 
@@ -97,6 +108,7 @@ h1, h2, .display {
   width: 230px;
   cursor: pointer;
   transition: border-color 0.15s, transform 0.1s;
+  touch-action: manipulation;
 }
 .mode-card:hover { border-color: var(--brass-bright); transform: translateY(-2px); }
 .mode-card h3 { margin: 0 0 0.4rem; color: var(--brass-bright); font-family: "Cormorant Garamond", serif; font-style: italic; }
@@ -140,10 +152,12 @@ h1, h2, .display {
 
 .toast-stack {
   position: fixed;
-  top: 1.2rem;
-  right: 1.2rem;
+  top: calc(1.2rem + env(safe-area-inset-top, 0px));
+  right: calc(1.2rem + env(safe-area-inset-right, 0px));
+  left: calc(1.2rem + env(safe-area-inset-left, 0px));
   display: flex;
   flex-direction: column;
+  align-items: flex-end;
   gap: 0.5rem;
   z-index: 50;
   pointer-events: none;
@@ -159,14 +173,15 @@ h1, h2, .display {
   align-items: center;
   animation: toast-in 0.25s ease-out, toast-out 0.4s ease-in 2.6s forwards;
   box-shadow: 0 4px 18px rgba(0,0,0,0.4);
+  max-width: min(320px, 80vw);
 }
 @keyframes toast-in { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
 @keyframes toast-out { to { opacity: 0; transform: translateX(20px); } }
 
 .hud {
   position: fixed;
-  top: 1rem;
-  left: 1rem;
+  top: calc(1rem + env(safe-area-inset-top, 0px));
+  left: calc(1rem + env(safe-area-inset-left, 0px));
   display: flex;
   gap: 0.6rem;
   z-index: 30;
@@ -176,19 +191,20 @@ h1, h2, .display {
   border: 1px solid rgba(201, 162, 74, 0.5);
   color: var(--text);
   border-radius: 999px;
-  width: 42px;
-  height: 42px;
+  width: 46px;
+  height: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   font-size: 1.1rem;
+  touch-action: manipulation;
 }
 .hud-btn:hover { border-color: var(--brass-bright); }
 
 .hint-banner {
   position: fixed;
-  bottom: 1.2rem;
+  bottom: calc(1.2rem + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
   background: var(--glass);

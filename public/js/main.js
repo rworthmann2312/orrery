@@ -52,6 +52,10 @@ function baseStarCount() {
 let fieldStars = new FieldStars(baseStarCount(), window.innerWidth, window.innerHeight);
 const shootingStars = new ShootingStars(() => tracker.recordShootingStar());
 window.addEventListener("resize", resize);
+window.addEventListener("orientationchange", resize);
+if (window.visualViewport) {
+  window.visualViewport.addEventListener("resize", resize);
+}
 
 let mode = null; // "free" | "constellation"
 let bodies = [];
@@ -114,6 +118,7 @@ function goTo(state) {
 }
 
 function startFree() {
+  audio.setOn(settings.soundOn);
   mode = "free";
   bodies = [];
   prevPairs.clear();
@@ -122,6 +127,7 @@ function startFree() {
 }
 
 function startConstellation(level, index) {
+  audio.setOn(settings.soundOn);
   mode = "constellation";
   currentLevel = level;
   currentLevelIndex = index;
@@ -270,7 +276,8 @@ function pointerUp(e) {
   const dx = x - dragStart.x, dy = y - dragStart.y;
   const dist = Math.hypot(dx, dy);
   const dtMs = performance.now() - dragStart.t;
-  if (dist < 8) {
+  const tapTolerance = e.pointerType === "touch" ? 16 : 8;
+  if (dist < tapTolerance) {
     addBodyAt(x, y);
   } else {
     const speed = Math.min(260, dist) / Math.max(40, dtMs);
@@ -283,6 +290,8 @@ canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 canvas.addEventListener("pointerdown", pointerDown);
 canvas.addEventListener("pointerup", pointerUp);
 canvas.addEventListener("pointerleave", () => clearTimeout(longPressTimer));
+canvas.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
+canvas.addEventListener("touchstart", (e) => e.preventDefault(), { passive: false });
 
 window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
@@ -332,7 +341,6 @@ function wireButtons() {
 async function handleAction(action) {
   switch (action) {
     case "start-free":
-      audio.setOn(settings.soundOn);
       startFree();
       break;
     case "goto-menu":
