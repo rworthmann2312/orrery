@@ -7,7 +7,7 @@ Keine Biologie, kein Lernspiel – ein eigenständiges, rein spielerisches Proje
 ## Modi
 
 - **Freies Spiel** – beliebig viele Körper setzen, volle gegenseitige Anziehung, der Himmel entwickelt sich frei weiter.
-- **Konstellationen** – sechs vorgegebene Formen (Dreieck, Kreuz, Diamant, Pfeil, Krone, Spirale) mit möglichst wenigen Körpern nachbilden. Fortschritt wird pro Level gespeichert.
+- **Konstellationen** – 100 vorgegebene Formen (Vielecke, Sterne, Gitter, Wellen, Spiralen, Sonnen, Doppelringe, Buchstaben, Zickzack und unregelmäßige Sternbild-Cluster) mit möglichst wenigen Körpern nachbilden, nach Punktanzahl aufsteigend sortiert. Fortschritt wird pro Level gespeichert.
 
 ## Bedienung
 

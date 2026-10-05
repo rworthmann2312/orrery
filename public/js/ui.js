@@ -118,9 +118,10 @@ export class UI {
     grid.innerHTML = "";
     CONSTELLATIONS.forEach((level, i) => {
       const btn = document.createElement("button");
-      btn.className = "btn small secondary";
       const done = completedIds.has(level.id);
-      btn.textContent = `${done ? "✓ " : ""}${i + 1}. ${level.name}`;
+      btn.className = "level-btn" + (done ? " done" : "");
+      btn.textContent = String(i + 1);
+      btn.title = `${level.name}${done ? " (gelöst)" : ""}`;
       btn.addEventListener("click", () => onPick(level, i));
       grid.appendChild(btn);
     });

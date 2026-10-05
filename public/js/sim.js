@@ -10,10 +10,12 @@ export function makeBody(x, y, voiceIdx, vx = 0, vy = 0) {
     x, y, vx, vy,
     baseX: x, baseY: y,
     radius: 8 + Math.random() * 10,
+    get mass() { return this.radius; },
     voiceIdx: voiceIdx % 4,
     hueJitter: (Math.random() - 0.5) * 10,
     bobPhase: Math.random() * Math.PI * 2,
-    spawnT: 0,
+    trail: [],
+    bornAt: performance.now(),
   };
 }
 
@@ -94,43 +96,90 @@ export class ShootingStars {
 }
 
 const G = 2600;
-const MIN_DIST = 24;
 const DAMPING = 0.985;
+const MAX_SPEED = 240;
+const TRAIL_LENGTH = 26;
 
-export function stepFreeBodies(bodies, dt, width, height) {
-  for (let i = 0; i < bodies.length; i++) {
+function pushTrail(body) {
+  body.trail.push({ x: body.x, y: body.y });
+  if (body.trail.length > TRAIL_LENGTH) body.trail.shift();
+}
+
+export function stepFreeBodies(bodies, dt, width, height, reducedMotion) {
+  const n = bodies.length;
+  for (let i = 0; i < n; i++) {
     const a = bodies[i];
-    let fx = 0, fy = 0;
-    for (let j = 0; j < bodies.length; j++) {
-      if (i === j) continue;
+    for (let j = i + 1; j < n; j++) {
       const b = bodies[j];
       const dx = b.x - a.x;
       const dy = b.y - a.y;
-      const distSq = Math.max(dx * dx + dy * dy, MIN_DIST * MIN_DIST);
-      const dist = Math.sqrt(distSq);
-      const sign = dist < a.radius + b.radius + 6 ? -1 : 1;
-      const f = (sign * G * a.radius * b.radius) / distSq;
-      fx += (dx / dist) * f;
-      fy += (dy / dist) * f;
+      const distSq = dx * dx + dy * dy;
+      const dist = Math.sqrt(distSq) || 0.001;
+      const minDist = a.radius + b.radius + 6;
+      if (dist > minDist) {
+        const f = (G * a.mass * b.mass) / Math.max(distSq, 900);
+        const fx = (dx / dist) * f, fy = (dy / dist) * f;
+        a.vx += fx * dt; a.vy += fy * dt;
+        b.vx -= fx * dt; b.vy -= fy * dt;
+      } else {
+        const push = (minDist - dist) * 18;
+        const nx = dx / dist, ny = dy / dist;
+        a.vx -= nx * push * dt; a.vy -= ny * push * dt;
+        b.vx += nx * push * dt; b.vy += ny * push * dt;
+      }
     }
-    a.vx = (a.vx + fx * dt) * DAMPING;
-    a.vy = (a.vy + fy * dt) * DAMPING;
   }
+  const damp = reducedMotion ? 0.9 : DAMPING;
   for (const a of bodies) {
+    a.vx *= damp; a.vy *= damp;
+    const speed = Math.hypot(a.vx, a.vy);
+    if (speed > MAX_SPEED) { a.vx = (a.vx / speed) * MAX_SPEED; a.vy = (a.vy / speed) * MAX_SPEED; }
     a.x += a.vx * dt;
     a.y += a.vy * dt;
-    if (a.x < 0) { a.x = 0; a.vx *= -0.6; }
-    if (a.x > width) { a.x = width; a.vx *= -0.6; }
-    if (a.y < 0) { a.y = 0; a.vy *= -0.6; }
-    if (a.y > height) { a.y = height; a.vy *= -0.6; }
+    const margin = a.radius + 8;
+    if (a.x < margin) { a.x = margin; a.vx = Math.abs(a.vx) * 0.6; }
+    if (a.x > width - margin) { a.x = width - margin; a.vx = -Math.abs(a.vx) * 0.6; }
+    if (a.y < margin) { a.y = margin; a.vy = Math.abs(a.vy) * 0.6; }
+    if (a.y > height - margin) { a.y = height - margin; a.vy = -Math.abs(a.vy) * 0.6; }
+    if (!reducedMotion) pushTrail(a);
   }
 }
 
-export function stepConstellationBodies(bodies, dt, t) {
+export function stepConstellationBodies(bodies, dt, t, reducedMotion) {
   for (const a of bodies) {
     a.bobPhase += dt * 0.6;
     a.x = a.baseX + Math.sin(a.bobPhase) * 3;
     a.y = a.baseY + Math.cos(a.bobPhase * 0.8) * 3;
+    if (!reducedMotion) pushTrail(a);
+  }
+}
+
+export function drawLinks(ctx, bodies, linkDist = 170) {
+  ctx.lineWidth = 1;
+  for (let i = 0; i < bodies.length; i++) {
+    for (let j = i + 1; j < bodies.length; j++) {
+      const a = bodies[i], b = bodies[j];
+      const dist = Math.hypot(b.x - a.x, b.y - a.y);
+      if (dist < linkDist) {
+        const alpha = (1 - dist / linkDist) * 0.55;
+        ctx.strokeStyle = `rgba(201,164,106,${alpha.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+export function drawTrail(ctx, body, hue) {
+  for (let k = 0; k < body.trail.length; k++) {
+    const pt = body.trail[k];
+    const a = (k / body.trail.length) * 0.35;
+    ctx.fillStyle = `hsla(${hue},80%,72%,${a.toFixed(3)})`;
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, 1.4, 0, Math.PI * 2);
+    ctx.fill();
   }
 }
 

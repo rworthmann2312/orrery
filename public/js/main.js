@@ -12,6 +12,8 @@ import {
   checkChimes,
   layoutConstellationPoints,
   matchConstellation,
+  drawLinks,
+  drawTrail,
 } from "./sim.js";
 
 const canvas = document.getElementById("sky");
@@ -212,19 +214,23 @@ function drawConstellationTargets() {
 }
 
 function drawBodies() {
+  if (!settings.reducedMotion) drawLinks(ctx, bodies, 170);
   for (const b of bodies) {
     const hue = [42, 196, 266, 18][b.voiceIdx] + b.hueJitter;
-    const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.radius * 3.2);
+    if (!settings.reducedMotion) drawTrail(ctx, b, hue);
+    const age = Math.min(1, (performance.now() - b.bornAt) / 400);
+    const r = b.radius * 3.2 * age;
+    const grad = ctx.createRadialGradient(b.x, b.y, 0, b.x, b.y, r || 0.01);
     grad.addColorStop(0, `hsla(${hue}, 85%, 78%, 0.95)`);
     grad.addColorStop(0.4, `hsla(${hue}, 85%, 60%, 0.35)`);
     grad.addColorStop(1, `hsla(${hue}, 85%, 50%, 0)`);
     ctx.fillStyle = grad;
     ctx.beginPath();
-    ctx.arc(b.x, b.y, b.radius * 3.2, 0, Math.PI * 2);
+    ctx.arc(b.x, b.y, r, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = `hsla(${hue}, 90%, 85%, 1)`;
     ctx.beginPath();
-    ctx.arc(b.x, b.y, b.radius * 0.55, 0, Math.PI * 2);
+    ctx.arc(b.x, b.y, b.radius * 0.55 * age, 0, Math.PI * 2);
     ctx.fill();
   }
 }
@@ -246,9 +252,9 @@ function frame(now) {
 
   if (playing) {
     if (mode === "free") {
-      stepFreeBodies(bodies, dt, width, height);
+      stepFreeBodies(bodies, dt, width, height, settings.reducedMotion);
     } else {
-      stepConstellationBodies(bodies, dt, now / 1000);
+      stepConstellationBodies(bodies, dt, now / 1000, settings.reducedMotion);
     }
     checkChimes(bodies, prevPairs, width, height, (midi, voiceIdx) => {
       audio.pluck(midi, 0.22, voiceIdx);

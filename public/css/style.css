@@ -114,6 +114,37 @@ h1, h2, .display {
 .mode-card h3 { margin: 0 0 0.4rem; color: var(--brass-bright); font-family: "Cormorant Garamond", serif; font-style: italic; }
 .mode-card p { margin: 0; font-size: 0.85rem; color: var(--text-dim); }
 .mode-card .progress { margin-top: 0.6rem; font-size: 0.8rem; color: var(--brass); font-family: "JetBrains Mono", monospace; }
+.mode-card-levels { width: 320px; cursor: default; }
+.mode-card-levels:hover { transform: none; }
+
+.level-grid {
+  margin-top: 0.7rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+  gap: 0.4rem;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 0.3rem;
+}
+.level-btn {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1px solid rgba(201, 162, 74, 0.4);
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-dim);
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.78rem;
+  cursor: pointer;
+  touch-action: manipulation;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+}
+.level-btn:hover { border-color: var(--brass-bright); color: var(--text); }
+.level-btn.done { background: rgba(201, 162, 74, 0.22); border-color: var(--brass); color: var(--brass-bright); }
 
 .settings-panel, .achievements-panel {
   background: var(--glass);
