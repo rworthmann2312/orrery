@@ -4,13 +4,10 @@ Passt zu einer rein statischen Seite (eine HTML-Datei, kein Server, kein Build) 
 
 ## Hosting: kostenlos über Git mit Cloudflare Pages
 
-1. GitHub-Repository: `rworthmann2312/orrery`, Branch `main` – wird von Claude eingerichtet und gepusht.
-2. Bei [Cloudflare Pages](https://pages.cloudflare.com/) mit GitHub einloggen und das Repo verbinden (Projektname z. B. `orrery`).
-3. Build-Einstellungen: **Build-Befehl leer lassen** (kein `npm run build`, keine Abhängigkeiten), **Ausgabeordner (Build output directory): `public`**.
-4. Danach: Jeder `git push` auf `main` veröffentlicht automatisch neu.
-5. Die Seite ist dann über `https://orrery.pages.dev` erreichbar (oder den Namen, den du beim Verbinden vergibst).
+**Erledigt (2026-10-05):** GitHub-Repository `rworthmann2312/orrery` (Branch `main`) ist mit Cloudflare Pages verbunden (Projekt `orrery`, Build-Befehl leer, Ausgabeordner `public`). Jeder `git push` auf `main` veröffentlicht automatisch neu.
 
-**Warum dieser letzte Schritt nicht automatisch passiert ist:** Das Verbinden eines Cloudflare-Pages-Projekts mit einem GitHub-Repo läuft über das Cloudflare-Dashboard und einen OAuth-Login, für den es kein API-Token in dieser Umgebung gibt – das muss einmalig von Hand gemacht werden (dauert ca. 2 Minuten, siehe Schritt 2–3).
+- **Live-Adresse:** <https://orrery-1i4.pages.dev> (der Name `orrery.pages.dev` war auf Cloudflare bereits von einem anderen Konto vergeben, daher der Zusatz `-1i4`).
+- Das Verbinden lief über das Cloudflare-Dashboard: GitHub-App-Zugriff auf das Repo `orrery` freigeschaltet (unter github.com/settings/installations, App "Cloudflare Workers and Pages"), danach "Import an existing Git repository" → Repo wählen → Build-Befehl leer, Ausgabeordner `public` → Deploy.
 
 ## Eigene Domain
 
