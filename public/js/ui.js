@@ -42,6 +42,14 @@ export class UI {
     this.hintBanner.classList.remove("hidden");
   }
 
+  setTitleSubtitle(returning) {
+    const el = this.screens.title?.querySelector("[data-title-subtitle]");
+    if (!el) return;
+    el.textContent = returning
+      ? "Schön, dass du wieder da bist. Dein Himmel hat auf dich gewartet."
+      : "Ein stiller Himmel, der auf dich wartet. Setze Lichter, höre ihnen zu.";
+  }
+
   toast(def) {
     if (!this.toastStack) return;
     const el = document.createElement("div");

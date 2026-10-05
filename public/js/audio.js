@@ -61,15 +61,15 @@ export class AudioEngine {
     const ctx = this.ctx;
     const input = ctx.createGain();
     const output = ctx.createGain();
-    output.gain.value = 0.55;
+    output.gain.value = 0.6;
     [0.29, 0.37, 0.43].forEach((t) => {
       const delay = ctx.createDelay(1.2);
       delay.delayTime.value = t;
       const fb = ctx.createGain();
-      fb.gain.value = 0.34;
+      fb.gain.value = 0.37;
       const lp = ctx.createBiquadFilter();
       lp.type = "lowpass";
-      lp.frequency.value = 2600;
+      lp.frequency.value = 2100;
       input.connect(delay);
       delay.connect(lp);
       lp.connect(fb);

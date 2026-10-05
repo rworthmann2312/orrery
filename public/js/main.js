@@ -80,6 +80,7 @@ function goTo(state) {
     case "title":
       ui.show("title");
       ui.setHud(false);
+      ui.setTitleSubtitle(completedLevels.size > 0 || tracker.stats.bodiesPlacedTotal > 0);
       break;
     case "menu":
       ui.show("modeSelect");
@@ -213,6 +214,17 @@ function drawConstellationTargets() {
   ctx.restore();
 }
 
+function drawAmbientGlow(t) {
+  const pulse = settings.reducedMotion ? 0.5 : 0.5 + 0.5 * Math.sin(t * 0.25);
+  const cx = width * 0.86, cy = height * 0.9;
+  const r = Math.min(width, height) * (0.45 + pulse * 0.06);
+  const glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, r);
+  glow.addColorStop(0, `rgba(217, 122, 74, ${0.05 + pulse * 0.035})`);
+  glow.addColorStop(1, "rgba(217, 122, 74, 0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, width, height);
+}
+
 function drawBodies() {
   if (!settings.reducedMotion) drawLinks(ctx, bodies, 170);
   for (const b of bodies) {
@@ -244,6 +256,7 @@ function frame(now) {
   ctx.clearRect(0, 0, width, height);
   ctx.fillStyle = "#0b0d1a";
   ctx.fillRect(0, 0, width, height);
+  drawAmbientGlow(now / 1000);
 
   if (!settings.reducedMotion) fieldStars.step(dt);
   fieldStars.draw(ctx);
