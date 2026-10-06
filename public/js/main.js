@@ -7,6 +7,7 @@ import {
   makeBody,
   FieldStars,
   ShootingStars,
+  RainDrops,
   stepFreeBodies,
   stepConstellationBodies,
   checkChimes,
@@ -46,6 +47,7 @@ function resize() {
   canvas.style.height = height + "px";
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   if (fieldStars) fieldStars.resize(baseStarCount(), width, height);
+  if (rainDrops) rainDrops.resize(90, width, height);
 }
 function baseStarCount() {
   return Math.round(120 * settings.particleDensity);
@@ -53,30 +55,26 @@ function baseStarCount() {
 
 let fieldStars = new FieldStars(baseStarCount(), window.innerWidth, window.innerHeight);
 const shootingStars = new ShootingStars(() => tracker.recordShootingStar());
+const rainDrops = new RainDrops(90, window.innerWidth, window.innerHeight);
 window.addEventListener("resize", resize);
 window.addEventListener("orientationchange", resize);
 if (window.visualViewport) {
   window.visualViewport.addEventListener("resize", resize);
 }
 
-let mode = null; // "free" | "constellation" | "ember" | "sleep"
+let mode = null; // "free" | "constellation" | "ember" | "rain"
 let bodies = [];
 let currentLevel = null;
 let currentLevelIndex = -1;
 let targetPoints = [];
 let levelSolved = false;
 const prevPairs = new Map();
-let appState = "title"; // title | menu | playing-<mode> | settings | achievements | credits | paused | levelComplete | sleepEnd
+let appState = "title"; // title | menu | playing-<mode> | settings | achievements | credits | paused | levelComplete
 let pausedFrom = null;
 let dragStart = null;
 let dragBody = null;
 let longPressTimer = null;
 let emberTimer = 2;
-let sleepMinutes = 10;
-let sleepDurationSec = 600;
-let sleepElapsed = 0;
-let sleepProgress = 0;
-let sleepEnded = false;
 
 function goTo(state) {
   appState = state;
@@ -84,11 +82,13 @@ function goTo(state) {
   ui.setHint("");
   switch (state) {
     case "title":
+      audio.setRain(false);
       ui.show("title");
       ui.setHud(false);
       ui.setTitleSubtitle(completedLevels.size > 0 || tracker.stats.bodiesPlacedTotal > 0);
       break;
     case "menu":
+      audio.setRain(false);
       ui.show("modeSelect");
       ui.setHud(false);
       ui.renderModeSelect({ done: completedLevels.size, total: CONSTELLATIONS.length });
@@ -106,13 +106,9 @@ function goTo(state) {
       ui.setHud(true);
       ui.setHint("Lehn dich zurück – dein Himmel spielt von selbst. ✕ zum Verlassen.");
       break;
-    case "playing-sleep":
+    case "playing-rain":
       ui.setHud(true);
-      ui.setHint(`Schlummermodus (${sleepMinutes} Min) – der Himmel kommt langsam zur Ruhe.`);
-      break;
-    case "sleepEnd":
-      ui.show("sleepEnd");
-      ui.setHud(false);
+      ui.setHint("Regennacht – Klicken: Stern setzen · Ziehen: Schwung geben · Rechtsklick/Halten: entfernen");
       break;
     case "settings":
       ui.show("settings");
@@ -161,18 +157,14 @@ function startEmber() {
   goTo("playing-ember");
 }
 
-function startSleep(minutes) {
+function startRain() {
   audio.setOn(settings.soundOn);
-  mode = "sleep";
+  audio.setRain(true);
+  mode = "rain";
   bodies = [];
   prevPairs.clear();
   levelSolved = false;
-  sleepMinutes = minutes;
-  sleepDurationSec = minutes * 60;
-  sleepElapsed = 0;
-  sleepProgress = 0;
-  sleepEnded = false;
-  goTo("playing-sleep");
+  goTo("playing-rain");
 }
 
 function startConstellation(level, index) {
@@ -304,6 +296,10 @@ function frame(now) {
   fieldStars.draw(ctx);
   if (!settings.reducedMotion) shootingStars.step(dt, width, height);
   shootingStars.draw(ctx);
+  if (mode === "rain" && playing) {
+    if (!settings.reducedMotion) rainDrops.step(dt);
+    rainDrops.draw(ctx);
+  }
 
   if (playing) {
     if (mode === "constellation") {
@@ -322,15 +318,6 @@ function frame(now) {
         const y = margin + Math.random() * (height - margin * 2) * 0.7;
         addBodyAt(x, y, 0, 0, Math.random() < 0.5 ? 0 : 3);
       }
-    } else if (mode === "sleep") {
-      sleepElapsed += dt;
-      sleepProgress = Math.min(1, sleepElapsed / sleepDurationSec);
-      const slow = 1 - sleepProgress * 0.55;
-      bodies.forEach((b) => { b.vx *= slow; b.vy *= slow; });
-      if (sleepProgress >= 1 && !sleepEnded) {
-        sleepEnded = true;
-        setTimeout(() => goTo("sleepEnd"), 400);
-      }
     }
 
     checkChimes(bodies, prevPairs, width, height, (midi, voiceIdx) => {
@@ -339,10 +326,6 @@ function frame(now) {
     });
     drawConstellationTargets();
     drawBodies();
-    if (mode === "sleep") {
-      ctx.fillStyle = `rgba(5,6,14,${(sleepProgress * 0.82).toFixed(3)})`;
-      ctx.fillRect(0, 0, width, height);
-    }
     checkConstellationSolved();
     tracker.tick(dt, settings.soundOn);
   }
@@ -395,7 +378,7 @@ window.addEventListener("keydown", (e) => {
       goTo("paused");
     } else if (appState === "paused") {
       goTo(pausedFrom);
-    } else if (appState === "levelComplete" || appState === "sleepEnd") {
+    } else if (appState === "levelComplete") {
       goTo("menu");
     } else if (["settings", "achievements", "credits", "help"].includes(appState)) {
       goTo("menu");
@@ -443,8 +426,8 @@ async function handleAction(action, btn) {
     case "start-ember":
       startEmber();
       break;
-    case "start-sleep":
-      startSleep(Number(btn?.dataset.minutes || 10));
+    case "start-rain":
+      startRain();
       break;
     case "goto-menu":
       goTo("menu");
@@ -475,7 +458,7 @@ async function handleAction(action, btn) {
       if (mode === "constellation" && currentLevel) startConstellation(currentLevel, currentLevelIndex);
       else if (mode === "free") startFree();
       else if (mode === "ember") startEmber();
-      else if (mode === "sleep") startSleep(sleepMinutes);
+      else if (mode === "rain") startRain();
       break;
     case "save-png":
       savePng();

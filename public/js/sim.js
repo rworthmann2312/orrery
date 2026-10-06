@@ -51,6 +51,42 @@ export class FieldStars {
   }
 }
 
+export class RainDrops {
+  constructor(count, width, height) {
+    this.drops = [];
+    this.resize(count, width, height);
+  }
+  resize(count, width, height) {
+    this.width = width;
+    this.height = height;
+    this.drops = Array.from({ length: count }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      len: 10 + Math.random() * 14,
+      speed: 220 + Math.random() * 140,
+      drift: 16 + Math.random() * 10,
+    }));
+  }
+  step(dt) {
+    for (const d of this.drops) {
+      d.y += d.speed * dt;
+      d.x += d.drift * dt * 0.3;
+      if (d.y > this.height) { d.y = -20; d.x = Math.random() * this.width; }
+      if (d.x > this.width) d.x = 0;
+    }
+  }
+  draw(ctx) {
+    ctx.strokeStyle = "rgba(180,200,230,0.3)";
+    ctx.lineWidth = 1.2;
+    for (const d of this.drops) {
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x - d.drift * 0.06, d.y - d.len);
+      ctx.stroke();
+    }
+  }
+}
+
 export class ShootingStars {
   constructor(onSeen) {
     this.list = [];

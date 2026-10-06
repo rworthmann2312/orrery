@@ -32,6 +32,7 @@ export class AudioEngine {
     this.dry = null;
     this.wet = null;
     this.drone = null;
+    this.rain = null;
     this.on = false;
     this.volume = 0.5; // 0..1, vom Nutzer einstellbar
   }
@@ -126,6 +127,44 @@ export class AudioEngine {
       v.osc.stop(this.ctx.currentTime + 3);
     });
     this.drone = null;
+  }
+
+  setRain(on) {
+    if (!this.ctx) return;
+    if (on) this._startRain();
+    else this._stopRain();
+  }
+
+  _startRain() {
+    if (!this.ctx || this.rain) return;
+    const bufferSize = 2 * this.ctx.sampleRate;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+    noise.loop = true;
+    const band = this.ctx.createBiquadFilter();
+    band.type = "bandpass";
+    band.frequency.value = 3400;
+    band.Q.value = 0.5;
+    const gain = this.ctx.createGain();
+    gain.gain.value = 0.0001;
+    noise.connect(band);
+    band.connect(gain);
+    gain.connect(this.dry);
+    gain.connect(this.wet);
+    noise.start();
+    gain.gain.setTargetAtTime(0.045, this.ctx.currentTime, 2.5);
+    this.rain = { noise, gain };
+  }
+
+  _stopRain() {
+    if (!this.rain) return;
+    const { noise, gain } = this.rain;
+    gain.gain.setTargetAtTime(0.0001, this.ctx.currentTime, 1);
+    noise.stop(this.ctx.currentTime + 2.2);
+    this.rain = null;
   }
 
   pluck(midi, velocity, voiceIdx = 0) {
