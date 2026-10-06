@@ -10,6 +10,8 @@ Keine Biologie, kein Lernspiel – ein eigenständiges, rein spielerisches Proje
 - **Konstellationen** – 100 vorgegebene Formen (Vielecke, Sterne, Gitter, Wellen, Spiralen, Sonnen, Doppelringe, Buchstaben, Zickzack und unregelmäßige Sternbild-Cluster) mit möglichst wenigen Körpern nachbilden, nach Punktanzahl aufsteigend sortiert. Fortschritt wird pro Level gespeichert.
 - **Kaminmodus** – ein rein passiver Himmel: alle paar Sekunden erscheint von selbst ein warmer Körper, du musst nichts tun. Zum Zurücklehnen und Zuschauen.
 - **Regennacht** – wie Freies Spiel, aber mit sanftem, fallendem Regen (visuell und akustisch) für eine kühlere, ruhigere Stimmung.
+- **Sternenfolge** – Merkspiel: sechs Sterne leuchten in einer Reihenfolge auf, die mit jeder Runde um einen Stern wächst. Nachtippen, so lange es geht. Bestleistung wird gespeichert.
+- **Sternenfänger** – Reflex-Mini-Spiel: 45 Sekunden lang aufblitzende Sterne einfangen, bevor sie verglühen. Bestleistung wird gespeichert.
 
 ## Bedienung
 

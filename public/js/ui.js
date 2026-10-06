@@ -5,7 +5,7 @@ export class UI {
   constructor(root) {
     this.root = root;
     this.screens = {};
-    ["title", "modeSelect", "settings", "achievements", "credits", "pause", "help", "levelComplete"].forEach((name) => {
+    ["title", "modeSelect", "settings", "achievements", "credits", "pause", "help", "levelComplete", "miniGameEnd"].forEach((name) => {
       this.screens[name] = root.querySelector(`[data-screen="${name}"]`);
     });
     this.hud = root.querySelector("[data-hud]");
@@ -118,6 +118,22 @@ export class UI {
     if (title) title.textContent = `${level.name} geschafft!`;
     if (sub) sub.textContent = hasNext ? "Bereit für die nächste Konstellation?" : "Du hast alle Konstellationen gelöst.";
     if (nextBtn) nextBtn.classList.toggle("hidden", !hasNext);
+  }
+
+  renderMiniGameEnd(title, scoreText) {
+    const screen = this.screens.miniGameEnd;
+    if (!screen) return;
+    const titleEl = screen.querySelector("[data-minigame-title]");
+    const scoreEl = screen.querySelector("[data-minigame-score]");
+    if (titleEl) titleEl.textContent = title;
+    if (scoreEl) scoreEl.textContent = scoreText;
+  }
+
+  renderMiniGameBests(memoryBest, catchBest) {
+    const memEl = this.screens.modeSelect?.querySelector("[data-memory-best]");
+    const catchEl = this.screens.modeSelect?.querySelector("[data-catch-best]");
+    if (memEl) memEl.textContent = memoryBest > 0 ? `Bestleistung: ${memoryBest} ${memoryBest === 1 ? "Runde" : "Runden"}` : "Bestleistung: –";
+    if (catchEl) catchEl.textContent = catchBest > 0 ? `Bestleistung: ${catchBest} Punkte` : "Bestleistung: –";
   }
 
   renderLevelPicker(onPick, completedIds) {

@@ -59,6 +59,16 @@
       <h3>Regennacht</h3>
       <p>Setze Körper wie im Freien Spiel, dazu sanfter Regen und ein kühlerer, ruhiger Klang.</p>
     </div>
+    <div class="mode-card" data-action="start-memory">
+      <h3>Sternenfolge</h3>
+      <p>Merk dir die aufleuchtende Reihenfolge der Sterne und tippe sie nach. Wird mit jeder Runde länger.</p>
+      <div class="progress" data-memory-best>Bestleistung: –</div>
+    </div>
+    <div class="mode-card" data-action="start-catch">
+      <h3>Sternenfänger</h3>
+      <p>45 Sekunden lang aufblitzende Sterne einfangen, bevor sie verglühen.</p>
+      <div class="progress" data-catch-best>Bestleistung: –</div>
+    </div>
   </div>
   <button class="btn secondary" data-action="goto-title">Zurück</button>
 </div>
@@ -122,6 +132,15 @@
     <button class="btn" data-action="next-level" data-level-complete-next>Nächste Konstellation</button>
     <button class="btn secondary" data-action="goto-menu">Zu den Challenges</button>
     <button class="btn secondary" data-action="goto-title">Zum Startbildschirm</button>
+  </div>
+</div>
+
+<div class="screen hidden" data-screen="miniGameEnd">
+  <h2 data-minigame-title>Spiel vorbei</h2>
+  <p class="subtitle" data-minigame-score></p>
+  <div class="menu-stack">
+    <button class="btn" data-action="retry-minigame">Nochmal</button>
+    <button class="btn secondary" data-action="goto-menu">Hauptmenü</button>
   </div>
 </div>
 

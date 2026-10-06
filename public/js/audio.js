@@ -217,6 +217,27 @@ export class AudioEngine {
     this._blip(660, 0.12, "triangle", 0.12);
   }
 
+  catchPing() {
+    this._blip(1320, 0.18, "sine", 0.22);
+  }
+
+  wrongBuzz() {
+    if (!this.on || !this.ctx) return;
+    const t0 = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(180, t0);
+    osc.frequency.exponentialRampToValueAtTime(90, t0 + 0.4);
+    gain.gain.setValueAtTime(0.0001, t0);
+    gain.gain.exponentialRampToValueAtTime(0.16, t0 + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.45);
+    osc.connect(gain);
+    gain.connect(this.dry);
+    osc.start(t0);
+    osc.stop(t0 + 0.5);
+  }
+
   success() {
     if (!this.on || !this.ctx) return;
     const t0 = this.ctx.currentTime;
