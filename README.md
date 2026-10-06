@@ -8,6 +8,8 @@ Keine Biologie, kein Lernspiel – ein eigenständiges, rein spielerisches Proje
 
 - **Freies Spiel** – beliebig viele Körper setzen, volle gegenseitige Anziehung, der Himmel entwickelt sich frei weiter.
 - **Konstellationen** – 100 vorgegebene Formen (Vielecke, Sterne, Gitter, Wellen, Spiralen, Sonnen, Doppelringe, Buchstaben, Zickzack und unregelmäßige Sternbild-Cluster) mit möglichst wenigen Körpern nachbilden, nach Punktanzahl aufsteigend sortiert. Fortschritt wird pro Level gespeichert.
+- **Kaminmodus** – ein rein passiver Himmel: alle paar Sekunden erscheint von selbst ein warmer Körper, du musst nichts tun. Zum Zurücklehnen und Zuschauen.
+- **Schlummermodus** – wie Freies Spiel, aber mit Einschlaf-Timer (5/10/20 Min). Der Himmel wird dabei zunehmend langsamer und dunkler, bis er zur Ruhe kommt.
 
 ## Bedienung
 

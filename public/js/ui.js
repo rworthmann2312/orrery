@@ -5,7 +5,7 @@ export class UI {
   constructor(root) {
     this.root = root;
     this.screens = {};
-    ["title", "modeSelect", "settings", "achievements", "credits", "pause", "help", "levelComplete"].forEach((name) => {
+    ["title", "modeSelect", "settings", "achievements", "credits", "pause", "help", "levelComplete", "sleepEnd"].forEach((name) => {
       this.screens[name] = root.querySelector(`[data-screen="${name}"]`);
     });
     this.hud = root.querySelector("[data-hud]");

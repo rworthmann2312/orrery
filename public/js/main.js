@@ -59,18 +59,24 @@ if (window.visualViewport) {
   window.visualViewport.addEventListener("resize", resize);
 }
 
-let mode = null; // "free" | "constellation"
+let mode = null; // "free" | "constellation" | "ember" | "sleep"
 let bodies = [];
 let currentLevel = null;
 let currentLevelIndex = -1;
 let targetPoints = [];
 let levelSolved = false;
 const prevPairs = new Map();
-let appState = "title"; // title | menu | playing-free | level-select | playing-constellation | settings | achievements | credits | paused
+let appState = "title"; // title | menu | playing-<mode> | settings | achievements | credits | paused | levelComplete | sleepEnd
 let pausedFrom = null;
 let dragStart = null;
 let dragBody = null;
 let longPressTimer = null;
+let emberTimer = 2;
+let sleepMinutes = 10;
+let sleepDurationSec = 600;
+let sleepElapsed = 0;
+let sleepProgress = 0;
+let sleepEnded = false;
 
 function goTo(state) {
   appState = state;
@@ -95,6 +101,18 @@ function goTo(state) {
     case "playing-constellation":
       ui.setHud(true);
       ui.setHint(currentLevel ? currentLevel.hint : "");
+      break;
+    case "playing-ember":
+      ui.setHud(true);
+      ui.setHint("Lehn dich zurück – dein Himmel spielt von selbst. ✕ zum Verlassen.");
+      break;
+    case "playing-sleep":
+      ui.setHud(true);
+      ui.setHint(`Schlummermodus (${sleepMinutes} Min) – der Himmel kommt langsam zur Ruhe.`);
+      break;
+    case "sleepEnd":
+      ui.show("sleepEnd");
+      ui.setHud(false);
       break;
     case "settings":
       ui.show("settings");
@@ -133,6 +151,30 @@ function startFree() {
   goTo("playing-free");
 }
 
+function startEmber() {
+  audio.setOn(settings.soundOn);
+  mode = "ember";
+  bodies = [];
+  prevPairs.clear();
+  levelSolved = false;
+  emberTimer = 0.6;
+  goTo("playing-ember");
+}
+
+function startSleep(minutes) {
+  audio.setOn(settings.soundOn);
+  mode = "sleep";
+  bodies = [];
+  prevPairs.clear();
+  levelSolved = false;
+  sleepMinutes = minutes;
+  sleepDurationSec = minutes * 60;
+  sleepElapsed = 0;
+  sleepProgress = 0;
+  sleepEnded = false;
+  goTo("playing-sleep");
+}
+
 function startConstellation(level, index) {
   audio.setOn(settings.soundOn);
   mode = "constellation";
@@ -162,9 +204,9 @@ function persistSettings() {
   saveJSON("settings", settings);
 }
 
-function addBodyAt(x, y, vx = 0, vy = 0) {
+function addBodyAt(x, y, vx = 0, vy = 0, forcedVoiceIdx = null) {
   if (mode === "constellation" && bodies.length >= targetPoints.length + 4) return;
-  const voiceIdx = Math.floor(Math.random() * 4);
+  const voiceIdx = forcedVoiceIdx === null ? Math.floor(Math.random() * 4) : forcedVoiceIdx;
   const b = makeBody(x, y, voiceIdx, vx, vy);
   bodies.push(b);
   tracker.recordBodyPlaced();
@@ -251,7 +293,7 @@ let lastT = performance.now();
 function frame(now) {
   const dt = Math.min(0.05, (now - lastT) / 1000);
   lastT = now;
-  const playing = appState === "playing-free" || appState === "playing-constellation";
+  const playing = appState.startsWith("playing-");
 
   ctx.clearRect(0, 0, width, height);
   ctx.fillStyle = "#0b0d1a";
@@ -264,17 +306,43 @@ function frame(now) {
   shootingStars.draw(ctx);
 
   if (playing) {
-    if (mode === "free") {
-      stepFreeBodies(bodies, dt, width, height, settings.reducedMotion);
-    } else {
+    if (mode === "constellation") {
       stepConstellationBodies(bodies, dt, now / 1000, settings.reducedMotion);
+    } else {
+      stepFreeBodies(bodies, dt, width, height, settings.reducedMotion);
     }
+
+    if (mode === "ember") {
+      emberTimer -= dt;
+      if (emberTimer <= 0) {
+        emberTimer = 2.5 + Math.random() * 2.5;
+        if (bodies.length >= 9) bodies.shift();
+        const margin = 60;
+        const x = margin + Math.random() * (width - margin * 2);
+        const y = margin + Math.random() * (height - margin * 2) * 0.7;
+        addBodyAt(x, y, 0, 0, Math.random() < 0.5 ? 0 : 3);
+      }
+    } else if (mode === "sleep") {
+      sleepElapsed += dt;
+      sleepProgress = Math.min(1, sleepElapsed / sleepDurationSec);
+      const slow = 1 - sleepProgress * 0.55;
+      bodies.forEach((b) => { b.vx *= slow; b.vy *= slow; });
+      if (sleepProgress >= 1 && !sleepEnded) {
+        sleepEnded = true;
+        setTimeout(() => goTo("sleepEnd"), 400);
+      }
+    }
+
     checkChimes(bodies, prevPairs, width, height, (midi, voiceIdx) => {
       audio.pluck(midi, 0.22, voiceIdx);
       tracker.recordChime();
     });
     drawConstellationTargets();
     drawBodies();
+    if (mode === "sleep") {
+      ctx.fillStyle = `rgba(5,6,14,${(sleepProgress * 0.82).toFixed(3)})`;
+      ctx.fillRect(0, 0, width, height);
+    }
     checkConstellationSolved();
     tracker.tick(dt, settings.soundOn);
   }
@@ -283,7 +351,7 @@ function frame(now) {
 }
 
 function pointerDown(e) {
-  if (appState !== "playing-free" && appState !== "playing-constellation") return;
+  if (!appState.startsWith("playing-") || mode === "ember") return;
   const x = e.clientX, y = e.clientY;
   if (e.button === 2) {
     removeNearest(x, y);
@@ -322,24 +390,24 @@ canvas.addEventListener("touchstart", (e) => e.preventDefault(), { passive: fals
 
 window.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
-    if (appState === "playing-free" || appState === "playing-constellation") {
+    if (appState.startsWith("playing-")) {
       pausedFrom = appState;
       goTo("paused");
     } else if (appState === "paused") {
       goTo(pausedFrom);
-    } else if (appState === "levelComplete") {
+    } else if (appState === "levelComplete" || appState === "sleepEnd") {
       goTo("menu");
     } else if (["settings", "achievements", "credits", "help"].includes(appState)) {
       goTo("menu");
     }
-  } else if (e.key === " " && (appState === "playing-free" || appState === "playing-constellation")) {
+  } else if (e.key === " " && appState.startsWith("playing-")) {
     e.preventDefault();
     settings.soundOn = !settings.soundOn;
     audio.setOn(settings.soundOn);
     persistSettings();
   } else if ((e.key === "h" || e.key === "H") && appState !== "title") {
     goTo(appState === "help" ? (pausedFrom || "menu") : (pausedFrom = appState, "help"));
-  } else if ((e.key === "s" || e.key === "S") && (appState === "playing-free" || appState === "playing-constellation")) {
+  } else if ((e.key === "s" || e.key === "S") && appState.startsWith("playing-")) {
     savePng();
   }
 });
@@ -361,16 +429,22 @@ function wireButtons() {
     btn.addEventListener("click", () => {
       audio.uiClick();
       const action = btn.getAttribute("data-action");
-      handleAction(action);
+      handleAction(action, btn);
     });
     btn.addEventListener("pointerenter", () => audio.uiHover());
   });
 }
 
-async function handleAction(action) {
+async function handleAction(action, btn) {
   switch (action) {
     case "start-free":
       startFree();
+      break;
+    case "start-ember":
+      startEmber();
+      break;
+    case "start-sleep":
+      startSleep(Number(btn?.dataset.minutes || 10));
       break;
     case "goto-menu":
       goTo("menu");
@@ -400,6 +474,8 @@ async function handleAction(action) {
     case "restart-level":
       if (mode === "constellation" && currentLevel) startConstellation(currentLevel, currentLevelIndex);
       else if (mode === "free") startFree();
+      else if (mode === "ember") startEmber();
+      else if (mode === "sleep") startSleep(sleepMinutes);
       break;
     case "save-png":
       savePng();
