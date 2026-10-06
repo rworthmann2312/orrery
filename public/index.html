@@ -27,7 +27,7 @@
 <div class="toast-stack" data-toasts></div>
 <div class="confirm-overlay hidden" data-confirm></div>
 
-<div class="screen" data-screen="title">
+<div class="screen" data-screen="title"><div class="screen-inner">
   <h1>Orrery</h1>
   <p class="subtitle" data-title-subtitle>Ein stiller Himmel, der auf dich wartet. Setze Lichter, höre ihnen zu.</p>
   <div class="menu-stack">
@@ -36,44 +36,67 @@
     <button class="btn secondary" data-action="goto-achievements">Erfolge</button>
     <button class="btn secondary" data-action="goto-credits">Über Orrery</button>
   </div>
-</div>
+</div></div>
 
-<div class="screen hidden" data-screen="modeSelect">
+<div class="screen hidden" data-screen="modeSelect"><div class="screen-inner">
   <h2>Wähle deinen Himmel</h2>
-  <div class="mode-grid">
-    <div class="mode-card" data-action="start-free">
-      <h3>Freies Spiel</h3>
-      <p>Setze beliebig viele Körper, lass sie sich gegenseitig anziehen und lausche dem Klang.</p>
-    </div>
-    <div class="mode-card mode-card-levels">
-      <h3>Konstellationen</h3>
-      <p>Finde mit möglichst wenigen Körpern die vorgegebene Form.</p>
-      <div class="progress" data-constellation-progress>0 / 0 gelöst</div>
-      <div class="level-grid" data-level-grid></div>
-    </div>
-    <div class="mode-card" data-action="start-ember">
-      <h3>Kaminmodus</h3>
-      <p>Lehn dich zurück. Dein Himmel entsteht von selbst, du musst nichts tun.</p>
-    </div>
-    <div class="mode-card" data-action="start-rain">
-      <h3>Regennacht</h3>
-      <p>Setze Körper wie im Freien Spiel, dazu sanfter Regen und ein kühlerer, ruhiger Klang.</p>
-    </div>
-    <div class="mode-card" data-action="start-memory">
-      <h3>Sternenfolge</h3>
-      <p>Merk dir die aufleuchtende Reihenfolge der Sterne und tippe sie nach. Wird mit jeder Runde länger.</p>
-      <div class="progress" data-memory-best>Bestleistung: –</div>
-    </div>
-    <div class="mode-card" data-action="start-catch">
-      <h3>Sternenfänger</h3>
-      <p>45 Sekunden lang aufblitzende Sterne einfangen, bevor sie verglühen.</p>
-      <div class="progress" data-catch-best>Bestleistung: –</div>
+
+  <div class="mode-section">
+    <div class="mode-section-title">Sandbox</div>
+    <div class="mode-grid">
+      <div class="mode-card" data-action="start-free">
+        <h3>Freies Spiel</h3>
+        <p>Setze beliebig viele Körper, lass sie sich gegenseitig anziehen und lausche dem Klang.</p>
+      </div>
+      <div class="mode-card" data-action="start-ember">
+        <h3>Kaminmodus</h3>
+        <p>Lehn dich zurück. Dein Himmel entsteht von selbst, du musst nichts tun.</p>
+      </div>
+      <div class="mode-card" data-action="start-rain">
+        <h3>Regennacht</h3>
+        <p>Wie Freies Spiel, dazu sanfter Regen und ein kühlerer, ruhiger Klang.</p>
+      </div>
     </div>
   </div>
-  <button class="btn secondary" data-action="goto-title">Zurück</button>
-</div>
 
-<div class="screen hidden" data-screen="settings">
+  <div class="mode-section">
+    <div class="mode-section-title">Herausforderung</div>
+    <div class="mode-grid">
+      <div class="mode-card" data-action="goto-levels">
+        <h3>Konstellationen</h3>
+        <p>Finde mit möglichst wenigen Körpern die vorgegebene Form. 100 Level.</p>
+        <div class="progress" data-constellation-progress>0 / 0 gelöst</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mode-section">
+    <div class="mode-section-title">Mini-Spiele</div>
+    <div class="mode-grid">
+      <div class="mode-card" data-action="start-memory">
+        <h3>Sternenfolge</h3>
+        <p>Merk dir die aufleuchtende Reihenfolge der Sterne und tippe sie nach.</p>
+        <div class="progress" data-memory-best>Bestleistung: –</div>
+      </div>
+      <div class="mode-card" data-action="start-catch">
+        <h3>Sternenfänger</h3>
+        <p>45 Sekunden lang aufblitzende Sterne einfangen, bevor sie verglühen.</p>
+        <div class="progress" data-catch-best>Bestleistung: –</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn secondary" data-action="goto-title">Zurück</button>
+</div></div>
+
+<div class="screen hidden" data-screen="levelSelect"><div class="screen-inner">
+  <h2>Konstellationen</h2>
+  <div class="progress" data-constellation-progress>0 / 0 gelöst</div>
+  <div class="level-grid" data-level-grid></div>
+  <button class="btn secondary" data-action="goto-menu">Zurück</button>
+</div></div>
+
+<div class="screen hidden" data-screen="settings"><div class="screen-inner">
   <h2>Einstellungen</h2>
   <div class="settings-panel">
     <div class="setting-row">
@@ -95,26 +118,26 @@
     <button class="btn danger small" data-action="reset-progress">Fortschritt zurücksetzen</button>
   </div>
   <button class="btn secondary" data-action="goto-title">Zurück</button>
-</div>
+</div></div>
 
-<div class="screen hidden" data-screen="achievements">
+<div class="screen hidden" data-screen="achievements"><div class="screen-inner">
   <h2>Erfolge</h2>
   <div class="achievements-panel">
     <div class="ach-list" data-ach-list></div>
   </div>
   <button class="btn secondary" data-action="goto-title">Zurück</button>
-</div>
+</div></div>
 
-<div class="screen hidden" data-screen="credits">
+<div class="screen hidden" data-screen="credits"><div class="screen-inner">
   <h2>Über Orrery</h2>
   <div class="credits-text">
     <p><strong>Orrery</strong> ist ein generatives Licht- und Klang-Spielzeug. Setze leuchtende Körper in den Nachthimmel, lass sie sich anziehen, hör ihnen beim Klingen zu, oder forme aus ihnen Sternbilder.</p>
     <p>Gebaut mit nichts als HTML, CSS und JavaScript &mdash; keine Engine, kein Build-Schritt. Musik und Klang entstehen live über die Web Audio API.</p>
   </div>
   <button class="btn secondary" data-action="goto-title">Zurück</button>
-</div>
+</div></div>
 
-<div class="screen hidden" data-screen="pause">
+<div class="screen hidden" data-screen="pause"><div class="screen-inner">
   <h2>Pause</h2>
   <div class="menu-stack">
     <button class="btn" data-action="resume">Weiter</button>
@@ -123,9 +146,9 @@
     <button class="btn secondary" data-action="goto-settings">Einstellungen</button>
     <button class="btn secondary" data-action="goto-menu">Hauptmenü</button>
   </div>
-</div>
+</div></div>
 
-<div class="screen hidden" data-screen="levelComplete">
+<div class="screen hidden" data-screen="levelComplete"><div class="screen-inner">
   <h2 data-level-complete-title>Geschafft!</h2>
   <p class="subtitle" data-level-complete-sub></p>
   <div class="menu-stack">
@@ -133,18 +156,18 @@
     <button class="btn secondary" data-action="goto-menu">Zu den Challenges</button>
     <button class="btn secondary" data-action="goto-title">Zum Startbildschirm</button>
   </div>
-</div>
+</div></div>
 
-<div class="screen hidden" data-screen="miniGameEnd">
+<div class="screen hidden" data-screen="miniGameEnd"><div class="screen-inner">
   <h2 data-minigame-title>Spiel vorbei</h2>
   <p class="subtitle" data-minigame-score></p>
   <div class="menu-stack">
     <button class="btn" data-action="retry-minigame">Nochmal</button>
     <button class="btn secondary" data-action="goto-menu">Hauptmenü</button>
   </div>
-</div>
+</div></div>
 
-<div class="screen hidden" data-screen="help">
+<div class="screen hidden" data-screen="help"><div class="screen-inner">
   <h2>Steuerung</h2>
   <div class="help-list">
     <p><strong>Klick / Tippen:</strong> Körper setzen</p>
@@ -157,7 +180,7 @@
     <p><strong>H:</strong> diese Hilfe</p>
   </div>
   <button class="btn secondary" data-action="resume">Zurück</button>
-</div>
+</div></div>
 
 <script type="module" src="js/main.js"></script>
 </body>

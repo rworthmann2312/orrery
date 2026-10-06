@@ -5,7 +5,7 @@ export class UI {
   constructor(root) {
     this.root = root;
     this.screens = {};
-    ["title", "modeSelect", "settings", "achievements", "credits", "pause", "help", "levelComplete", "miniGameEnd"].forEach((name) => {
+    ["title", "modeSelect", "levelSelect", "settings", "achievements", "credits", "pause", "help", "levelComplete", "miniGameEnd"].forEach((name) => {
       this.screens[name] = root.querySelector(`[data-screen="${name}"]`);
     });
     this.hud = root.querySelector("[data-hud]");
@@ -91,9 +91,10 @@ export class UI {
     });
   }
 
-  renderModeSelect(progress) {
-    const el = this.screens.modeSelect?.querySelector("[data-constellation-progress]");
-    if (el) el.textContent = `${progress.done} / ${progress.total} gelöst`;
+  renderConstellationProgress(done, total) {
+    this.root.querySelectorAll("[data-constellation-progress]").forEach((el) => {
+      el.textContent = `${done} / ${total} gelöst`;
+    });
   }
 
   renderAchievements(tracker) {
@@ -137,7 +138,7 @@ export class UI {
   }
 
   renderLevelPicker(onPick, completedIds) {
-    const grid = this.screens.modeSelect?.querySelector("[data-level-grid]");
+    const grid = this.screens.levelSelect?.querySelector("[data-level-grid]");
     if (!grid) return;
     grid.innerHTML = "";
     CONSTELLATIONS.forEach((level, i) => {

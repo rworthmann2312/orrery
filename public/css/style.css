@@ -57,8 +57,6 @@ h1, h2, .display {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 1.1rem;
   padding: calc(2rem + env(safe-area-inset-top, 0px)) calc(1.2rem + env(safe-area-inset-right, 0px)) calc(2rem + env(safe-area-inset-bottom, 0px)) calc(1.2rem + env(safe-area-inset-left, 0px));
   overflow-y: auto;
   text-align: center;
@@ -66,6 +64,15 @@ h1, h2, .display {
     radial-gradient(circle at 88% 92%, rgba(217, 122, 74, 0.1), transparent 42%),
     radial-gradient(circle at 10% 95%, rgba(201, 162, 74, 0.06), transparent 38%),
     radial-gradient(ellipse at 50% 30%, var(--night-2), var(--night-0) 70%);
+}
+
+.screen-inner {
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.1rem;
+  width: 100%;
 }
 
 .screen.hidden { display: none; }
@@ -112,12 +119,28 @@ h1, h2, .display {
 
 .menu-stack { display: flex; flex-direction: column; gap: 0.7rem; align-items: center; }
 
+.mode-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  max-width: 740px;
+}
+.mode-section-title {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brass);
+  opacity: 0.8;
+}
+
 .mode-grid {
   display: flex;
   gap: 1.2rem;
   flex-wrap: wrap;
   justify-content: center;
-  max-width: 700px;
+  max-width: 740px;
 }
 .mode-card {
   background: var(--glass);
@@ -126,24 +149,25 @@ h1, h2, .display {
   border: 1px solid rgba(201, 162, 74, 0.4);
   border-radius: 16px;
   padding: 1.4rem;
-  width: 230px;
+  width: 220px;
   cursor: pointer;
   transition: border-color 0.15s, transform 0.1s, box-shadow 0.2s;
   touch-action: manipulation;
+  display: flex;
+  flex-direction: column;
 }
 .mode-card:hover { border-color: var(--brass-bright); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(0, 0, 0, 0.35), 0 0 20px rgba(232, 200, 120, 0.12); }
 .mode-card h3 { margin: 0 0 0.4rem; color: var(--brass-bright); font-family: "Cormorant Garamond", serif; font-style: italic; }
-.mode-card p { margin: 0; font-size: 0.85rem; color: var(--text-dim); }
+.mode-card p { margin: 0; font-size: 0.85rem; color: var(--text-dim); flex: 1; }
 .mode-card .progress { margin-top: 0.6rem; font-size: 0.8rem; color: var(--brass); font-family: "JetBrains Mono", monospace; }
-.mode-card-levels { width: 320px; cursor: default; }
-.mode-card-levels:hover { transform: none; }
 
 .level-grid {
-  margin-top: 0.7rem;
+  margin-top: 0.3rem;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
   gap: 0.4rem;
-  max-height: 260px;
+  max-width: 420px;
+  max-height: 46vh;
   overflow-y: auto;
   padding-right: 0.3rem;
 }

@@ -111,9 +111,14 @@ function goTo(state) {
       audio.setRain(false);
       ui.show("modeSelect");
       ui.setHud(false);
-      ui.renderModeSelect({ done: completedLevels.size, total: CONSTELLATIONS.length });
-      ui.renderLevelPicker(startConstellation, completedLevels);
+      ui.renderConstellationProgress(completedLevels.size, CONSTELLATIONS.length);
       ui.renderMiniGameBests(memoryBest, catchBest);
+      break;
+    case "levelSelect":
+      ui.show("levelSelect");
+      ui.setHud(false);
+      ui.renderConstellationProgress(completedLevels.size, CONSTELLATIONS.length);
+      ui.renderLevelPicker(startConstellation, completedLevels);
       break;
     case "playing-free":
       ui.setHud(true);
@@ -608,7 +613,7 @@ window.addEventListener("keydown", (e) => {
       goTo(pausedFrom);
     } else if (appState === "levelComplete" || appState === "miniGameEnd") {
       goTo("menu");
-    } else if (["settings", "achievements", "credits", "help"].includes(appState)) {
+    } else if (["settings", "achievements", "credits", "help", "levelSelect"].includes(appState)) {
       goTo("menu");
     }
   } else if (e.key === " " && appState.startsWith("playing-")) {
@@ -669,6 +674,9 @@ async function handleAction(action, btn) {
       break;
     case "goto-menu":
       goTo("menu");
+      break;
+    case "goto-levels":
+      goTo("levelSelect");
       break;
     case "goto-title":
       goTo("title");
